@@ -25,6 +25,20 @@ python -m external_comparison.runners.humaneval \
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
 
+## 当前 EC-2 结果边界
+
+仓库中已有的 EC-2 结果是 `MMLU-57x10 controlled subset`：57 个 subject、每个 subject 10 道测试题，搜索集每 subject 5 题。它们统一保留 `formal_result: false`，在 G1-G9 门禁完成前不能写成 formal result 或完整 MMLU。
+
+RPAS 本次运行是 9 个预定义候选架构上的 controlled candidate selection，`RPAS_MMLU_NEW_CANDIDATES=0`；这不是完整 reflective mutation search。G-Designer 的 `search_calls=0` 表示没有单独 instrumented 的搜索阶段，不表示没有额外推理调用。论文表格必须同时报告 test inference calls/tokens、search calls/tokens 和 total calls/tokens。
+
+可从每个 seed artifact 生成主表：
+
+```bash
+python -m external_comparison.runners.aggregate_mmlu \
+  --root outputs/external_comparison/ec2_gpu6 \
+  --output-dir outputs/external_comparison/ec2_gpu6/aggregate
+```
+
 ## 实验主线
 
 | 实验 | 主要回答的问题 | 首选方法 |

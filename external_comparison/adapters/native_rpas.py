@@ -50,7 +50,12 @@ def run_humaneval(args) -> None:
     manifest_path = run_dir / "run_manifest.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest.update({"implementation_status": "repository_phase2_native", "native_search": "phase2_run_search", "formal_result": True})
+        manifest.update({
+            "implementation_status": "controlled_pilot_repository_phase2",
+            "native_search": "phase2_executor_status_not_formal",
+            "formal_result": False,
+            "formal_result_reason": "repository-level formal gates are not complete",
+        })
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -62,7 +67,7 @@ def run_mmlu(args) -> None:
     from experiments.search_adapters.common_space import build_common_space_adapter
 
     repo_root = Path(args.repo_root).resolve()
-    config_path = repo_root / "experiments" / "phase2_wan_agent_config_qwen35_9b_homogeneous.json"
+    config_path = Path(os.environ.get("RPAS_MODEL_CONFIG", str(repo_root / "experiments" / "phase2_wan_agent_config_qwen35_9b_gpu6.json"))).expanduser().resolve()
     raw_config = json.loads(config_path.read_text(encoding="utf-8"))
     endpoint = os.environ.get("RPAS_EXTERNAL_API_BASE")
     if endpoint:
@@ -159,13 +164,16 @@ def run_mmlu(args) -> None:
         "method": "rpas",
         "dataset": "mmlu",
         "seed": args.seed,
-        "implementation_status": "repository_phase2_executor_with_rpas_search_policy",
-        "native_search": "rpas_typed_mutation_and_pareto_parent_selection",
-        "official_repo": str(repo_root),
+        "implementation_status": "controlled_candidate_selection_pilot",
+        "native_search": "rpas_pareto_selection_over_predefined_candidates",
+        "official_repo": "repository_root",
         "search_calls": sum(int(row["total_calls"]) for row in search_rows),
         "search_tokens": sum(int(row["total_tokens"]) for row in search_rows),
         "model": os.environ.get("RPAS_EXTERNAL_MODEL", "Qwen/Qwen3.5-9B"),
         "search_candidates": len(search_rows),
+        "new_candidate_budget": extra,
+        "reflection_mode": "rule",
+        "search_scope": "9 predefined architectures; no new reflective mutation when RPAS_MMLU_NEW_CANDIDATES=0",
         "search_examples": len(search),
         "test_examples": len(test),
         "eval_concurrency": eval_concurrency,
@@ -175,6 +183,7 @@ def run_mmlu(args) -> None:
         "answer_parser": "strict_choice_a_b_c_d",
         "valid_answer_rate": valid_answer_rate,
         "formal_result": False,
+        "formal_result_reason": "controlled subset and repository formal gates are incomplete",
     }
     write_native_result(output_dir, manifest, test_result["rows"], test_result["calls_detail"], selected)
     (output_dir / "search_rows.jsonl").write_text("\n".join(json.dumps(row, ensure_ascii=False, sort_keys=True) for row in search_rows) + "\n", encoding="utf-8")

@@ -1,0 +1,118 @@
+{
+  "dataset": "MMLU-57x10 controlled subset",
+  "formal_result": false,
+  "rows": [
+    {
+      "method": "rpas",
+      "seeds": 3,
+      "test_examples": 570,
+      "accuracy_mean": 0.8157894736842105,
+      "accuracy_ci95_low": 0.8157894736842105,
+      "accuracy_ci95_high": 0.8157894736842105,
+      "valid_answer_rate_mean": 1.0,
+      "test_calls_mean": 570,
+      "search_calls_mean": 5806.333333333333,
+      "total_calls_mean": 6376.333333333333,
+      "test_tokens_mean": 141833,
+      "search_tokens_mean": 1924959.3333333333,
+      "total_tokens_mean": 2066792.3333333333,
+      "search_cost_note": "instrumented"
+    },
+    {
+      "method": "gdesigner",
+      "seeds": 3,
+      "test_examples": 570,
+      "accuracy_mean": 0.7672514619883041,
+      "accuracy_ci95_low": 0.7608696969876334,
+      "accuracy_ci95_high": 0.7736332269889747,
+      "valid_answer_rate_mean": 0.9976608187134502,
+      "test_calls_mean": 1739.3333333333333,
+      "search_calls_mean": 0,
+      "total_calls_mean": 1739.3333333333333,
+      "test_tokens_mean": 869084,
+      "search_tokens_mean": 0,
+      "total_tokens_mean": 869084,
+      "search_cost_note": "not separately instrumented"
+    }
+  ],
+  "seed_rows": [
+    {
+      "method": "rpas",
+      "seed": 0,
+      "accuracy": 0.8157894736842105,
+      "valid_answer_rate": 1.0,
+      "test_calls": 570,
+      "search_calls": 5807,
+      "total_calls": 6377,
+      "test_tokens": 141833,
+      "search_tokens": 1924913,
+      "total_tokens": 2066746,
+      "search_instrumented": true
+    },
+    {
+      "method": "rpas",
+      "seed": 1,
+      "accuracy": 0.8157894736842105,
+      "valid_answer_rate": 1.0,
+      "test_calls": 570,
+      "search_calls": 5806,
+      "total_calls": 6376,
+      "test_tokens": 141833,
+      "search_tokens": 1924910,
+      "total_tokens": 2066743,
+      "search_instrumented": true
+    },
+    {
+      "method": "rpas",
+      "seed": 2,
+      "accuracy": 0.8157894736842105,
+      "valid_answer_rate": 1.0,
+      "test_calls": 570,
+      "search_calls": 5806,
+      "total_calls": 6376,
+      "test_tokens": 141833,
+      "search_tokens": 1925055,
+      "total_tokens": 2066888,
+      "search_instrumented": true
+    },
+    {
+      "method": "gdesigner",
+      "seed": 0,
+      "accuracy": 0.7631578947368421,
+      "valid_answer_rate": 0.9982456140350877,
+      "test_calls": 1759,
+      "search_calls": 0,
+      "total_calls": 1759,
+      "test_tokens": 866637,
+      "search_tokens": 0,
+      "total_tokens": 866637,
+      "search_instrumented": false
+    },
+    {
+      "method": "gdesigner",
+      "seed": 1,
+      "accuracy": 0.7736842105263158,
+      "valid_answer_rate": 0.9964912280701754,
+      "test_calls": 1728,
+      "search_calls": 0,
+      "total_calls": 1728,
+      "test_tokens": 869000,
+      "search_tokens": 0,
+      "total_tokens": 869000,
+      "search_instrumented": false
+    },
+    {
+      "method": "gdesigner",
+      "seed": 2,
+      "accuracy": 0.7649122807017544,
+      "valid_answer_rate": 0.9982456140350877,
+      "test_calls": 1731,
+      "search_calls": 0,
+      "total_calls": 1731,
+      "test_tokens": 871615,
+      "search_tokens": 0,
+      "total_tokens": 871615,
+      "search_instrumented": false
+    }
+  ]
+}

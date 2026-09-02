@@ -8,6 +8,7 @@ import pytest
 
 from external_comparison.adapters.native_common import write_native_result
 from external_comparison.adapters.native_rpas import _protocol_mmlu_candidate
+from external_comparison.runners.aggregate_mmlu import aggregate
 from external_comparison.runners.mmlu import (
     MMLU_SUBJECTS,
     build_mmlu_manifest,
@@ -74,3 +75,28 @@ def test_mmlu_manifest_is_deterministic(tmp_path: Path) -> None:
     assert first == second
     assert first["search"]["count"] == 2 * len(MMLU_SUBJECTS)
     assert first["test"]["count"] == 2 * len(MMLU_SUBJECTS)
+
+
+def test_aggregate_mmlu_separates_search_and_test_cost(tmp_path: Path) -> None:
+    for method, search_calls in (("rpas", 12), ("gdesigner", 0)):
+        for seed in range(3):
+            run = tmp_path / method / f"seed_{seed}"
+            run.mkdir(parents=True)
+            manifest = {"method": method, "seed": seed, "formal_result": False}
+            summary = {
+                "score": 0.8 if method == "rpas" else 0.7,
+                "num_examples": 570,
+                "valid_answer_rate": 1.0,
+                "inference_calls": 570 if method == "rpas" else 1700,
+                "inference_tokens": 1000,
+                "search_calls": search_calls,
+                "search_tokens": search_calls * 10,
+            }
+            (run / "run_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            (run / "result.json").write_text(json.dumps({"summary": summary}), encoding="utf-8")
+    payload = aggregate(tmp_path, tmp_path / "aggregate")
+    rows = {row["method"]: row for row in payload["rows"]}
+    assert rows["rpas"]["test_calls_mean"] == 570
+    assert rows["rpas"]["search_calls_mean"] == 12
+    assert rows["rpas"]["total_calls_mean"] == 582
+    assert rows["gdesigner"]["search_cost_note"] == "not separately instrumented"

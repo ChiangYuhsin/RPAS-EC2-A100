@@ -1,0 +1,23 @@
+{
+  "run_id": "mmlu-rpas-seed-2",
+  "method": "rpas",
+  "dataset": "mmlu",
+  "seed": 2,
+  "implementation_status": "repository_phase2_executor_with_rpas_search_policy",
+  "native_search": "rpas_typed_mutation_and_pareto_parent_selection",
+  "official_repo": "repository_root",
+  "search_calls": 5806,
+  "search_tokens": 1925055,
+  "model": "Qwen/Qwen3.5-9B",
+  "search_candidates": 9,
+  "search_examples": 285,
+  "test_examples": 570,
+  "eval_concurrency": 8,
+  "max_tokens": 256,
+  "temperature": 0,
+  "thinking_disabled": true,
+  "answer_parser": "strict_choice_a_b_c_d",
+  "valid_answer_rate": 1,
+  "formal_result": false,
+  "formal_result_reason": "controlled subset and repository formal gates are incomplete"
+}

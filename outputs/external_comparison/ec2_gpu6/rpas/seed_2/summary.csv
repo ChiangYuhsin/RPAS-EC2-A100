@@ -1,0 +1,2 @@
+method,dataset,score,num_examples,valid_answer_rate,inference_calls,inference_tokens,model_errors,maxed_calls,search_calls,search_tokens
+rpas,mmlu,0.8157894736842105,570,1.0,570,141833,0,0,5806,1925055

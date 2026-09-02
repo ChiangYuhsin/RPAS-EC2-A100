@@ -1,0 +1,2 @@
+method,dataset,score,num_examples,valid_answer_rate,inference_calls,inference_tokens,model_errors,maxed_calls,search_calls,search_tokens
+gdesigner,mmlu,0.7736842105263158,570,0.9964912280701754,1728,869000,0,20,0,0

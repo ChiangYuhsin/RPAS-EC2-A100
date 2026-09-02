@@ -1,0 +1,3 @@
+method,seeds,test_examples,accuracy_mean,accuracy_ci95_low,accuracy_ci95_high,valid_answer_rate_mean,test_calls_mean,search_calls_mean,total_calls_mean,test_tokens_mean,search_tokens_mean,total_tokens_mean,search_cost_note
+rpas,3,570,0.8157894736842105,0.8157894736842105,0.8157894736842105,1.0,570,5806.333333333333,6376.333333333333,141833,1924959.3333333333,2066792.3333333333,instrumented
+gdesigner,3,570,0.7672514619883041,0.7608696969876334,0.7736332269889747,0.9976608187134502,1739.3333333333333,0,1739.3333333333333,869084,0,869084,not separately instrumented

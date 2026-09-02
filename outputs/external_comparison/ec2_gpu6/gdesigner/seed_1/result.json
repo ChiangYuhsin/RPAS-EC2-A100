@@ -1,0 +1,4602 @@
+{
+  "run_id": "mmlu-gdesigner-seed-1",
+  "method": "gdesigner",
+  "dataset": "mmlu",
+  "seed": 1,
+  "implementation_status": "official_graph_gcn",
+  "native_search": "gcn_topology_sampling",
+  "official_repo": "external_baselines/GDesigner",
+  "official_commit": "a6efcfa3b40bb4d9cbf46f883a95d62020bd8251",
+  "search_calls": 0,
+  "search_tokens": 0,
+  "model": "Qwen/Qwen3.5-9B",
+  "embedding_model": "local_sentence_transformers_all-MiniLM-L6-v2",
+  "communication_telemetry": "calls_from_official_graph_messages_not_reconstructed",
+  "search_examples": 285,
+  "test_examples": 570,
+  "agent_count": 3,
+  "communication_rounds": 1,
+  "max_tokens": 256,
+  "temperature": 0,
+  "thinking_disabled": true,
+  "answer_parser": "strict_choice_a_b_c_d",
+  "valid_answer_rate": 0.9964912280701754,
+  "formal_result": false,
+  "summary": {
+    "method": "gdesigner",
+    "dataset": "mmlu",
+    "score": 0.7736842105263158,
+    "num_examples": 570,
+    "valid_answer_rate": 0.9964912280701754,
+    "inference_calls": 1728,
+    "inference_tokens": 869000,
+    "model_errors": 0,
+    "maxed_calls": 20,
+    "search_calls": 0,
+    "search_tokens": 0
+  },
+  "selected": null,
+  "rows": [
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:38",
+      "subject": "abstract_algebra_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 20640.95981279388
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:6",
+      "subject": "abstract_algebra_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11524.151906371117
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:77",
+      "subject": "abstract_algebra_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13703.574945684522
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:69",
+      "subject": "abstract_algebra_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 16548.091686330736
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:2",
+      "subject": "abstract_algebra_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 17958.92556477338
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:42",
+      "subject": "abstract_algebra_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 6588.436605874449
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:92",
+      "subject": "abstract_algebra_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12640.078980941325
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:21",
+      "subject": "abstract_algebra_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12899.25477700308
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:8",
+      "subject": "abstract_algebra_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9748.894135002047
+    },
+    {
+      "example_id": "mmlu:test:abstract_algebra_test:63",
+      "subject": "abstract_algebra_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 13134.907136205584
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:29",
+      "subject": "anatomy_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 14243.54354897514
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:126",
+      "subject": "anatomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9275.97981505096
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:131",
+      "subject": "anatomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 5274.443301837891
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:53",
+      "subject": "anatomy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12768.856138922274
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:90",
+      "subject": "anatomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9510.305628646165
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:82",
+      "subject": "anatomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10721.188466064632
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:67",
+      "subject": "anatomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12692.111369222403
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:101",
+      "subject": "anatomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12137.288363650441
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:134",
+      "subject": "anatomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9358.35288837552
+    },
+    {
+      "example_id": "mmlu:test:anatomy_test:89",
+      "subject": "anatomy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8208.259144797921
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:57",
+      "subject": "astronomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10375.337247736752
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:102",
+      "subject": "astronomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5058.2248121500015
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:112",
+      "subject": "astronomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 6569.112251978368
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:65",
+      "subject": "astronomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9964.423631783575
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:38",
+      "subject": "astronomy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 14367.009768728167
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:24",
+      "subject": "astronomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9452.17645401135
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:89",
+      "subject": "astronomy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10589.46149982512
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:17",
+      "subject": "astronomy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14021.215553861111
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:120",
+      "subject": "astronomy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10659.65733770281
+    },
+    {
+      "example_id": "mmlu:test:astronomy_test:113",
+      "subject": "astronomy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8417.41185914725
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:55",
+      "subject": "business_ethics_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 7587.768980767578
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:12",
+      "subject": "business_ethics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9343.988719861954
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:93",
+      "subject": "business_ethics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10133.821022231132
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:22",
+      "subject": "business_ethics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10703.801380936056
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:1",
+      "subject": "business_ethics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10525.231876876205
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:46",
+      "subject": "business_ethics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7080.781826749444
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:24",
+      "subject": "business_ethics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8558.053480926901
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:13",
+      "subject": "business_ethics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5474.636709317565
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:75",
+      "subject": "business_ethics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8497.789809014648
+    },
+    {
+      "example_id": "mmlu:test:business_ethics_test:19",
+      "subject": "business_ethics_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11811.174466274679
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:220",
+      "subject": "clinical_knowledge_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13157.386200968176
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:23",
+      "subject": "clinical_knowledge_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12991.25169403851
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:40",
+      "subject": "clinical_knowledge_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10820.841835811734
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:3",
+      "subject": "clinical_knowledge_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 16240.928943734616
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:93",
+      "subject": "clinical_knowledge_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11817.885491997004
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:59",
+      "subject": "clinical_knowledge_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5390.101183671504
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:174",
+      "subject": "clinical_knowledge_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6770.889152772725
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:31",
+      "subject": "clinical_knowledge_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9821.0071567446
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:115",
+      "subject": "clinical_knowledge_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 15468.64695707336
+    },
+    {
+      "example_id": "mmlu:test:clinical_knowledge_test:178",
+      "subject": "clinical_knowledge_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11964.827239047736
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:28",
+      "subject": "college_biology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8451.740921009332
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:48",
+      "subject": "college_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8358.782235067338
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:42",
+      "subject": "college_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14373.613045085222
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:55",
+      "subject": "college_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8170.592451933771
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:109",
+      "subject": "college_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7108.02745167166
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:33",
+      "subject": "college_biology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8445.0306231156
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:60",
+      "subject": "college_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9094.745786860585
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:8",
+      "subject": "college_biology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14667.59350290522
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:106",
+      "subject": "college_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 15037.277081049979
+    },
+    {
+      "example_id": "mmlu:test:college_biology_test:84",
+      "subject": "college_biology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8103.799654170871
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:11",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 7100.859426893294
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:23",
+      "subject": "college_chemistry_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 7047.972877044231
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:21",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8118.112328927964
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:56",
+      "subject": "college_chemistry_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10006.495648995042
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:72",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 16677.249842789024
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:31",
+      "subject": "college_chemistry_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 15653.80530897528
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:94",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12706.161085050553
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:32",
+      "subject": "college_chemistry_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 16077.694039791822
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:39",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11497.76450311765
+    },
+    {
+      "example_id": "mmlu:test:college_chemistry_test:27",
+      "subject": "college_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9796.57885292545
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:52",
+      "subject": "college_computer_science_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 6479.884553235024
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:11",
+      "subject": "college_computer_science_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9187.683540862054
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:57",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14980.007339268923
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:46",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8930.330946110189
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:43",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11924.841543193907
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:19",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8412.752512376755
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:77",
+      "subject": "college_computer_science_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 12473.35000289604
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:18",
+      "subject": "college_computer_science_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10163.05422410369
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:99",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11575.459037907422
+    },
+    {
+      "example_id": "mmlu:test:college_computer_science_test:95",
+      "subject": "college_computer_science_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 9603.849286213517
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:47",
+      "subject": "college_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 17423.99579519406
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:13",
+      "subject": "college_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9233.890091069043
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:97",
+      "subject": "college_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14111.228816211224
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:6",
+      "subject": "college_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14853.63004123792
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:62",
+      "subject": "college_mathematics_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 6414.364546071738
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:88",
+      "subject": "college_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7092.7168489433825
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:77",
+      "subject": "college_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 4414.43096101284
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:12",
+      "subject": "college_mathematics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13259.605542756617
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:91",
+      "subject": "college_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 18978.07893715799
+    },
+    {
+      "example_id": "mmlu:test:college_mathematics_test:55",
+      "subject": "college_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14418.729037046432
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:164",
+      "subject": "college_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 16688.44599928707
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:35",
+      "subject": "college_medicine_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7310.941328294575
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:18",
+      "subject": "college_medicine_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12680.511952843517
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:69",
+      "subject": "college_medicine_test",
+      "prediction": "B",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 12082.385920919478
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:84",
+      "subject": "college_medicine_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7261.787532828748
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:9",
+      "subject": "college_medicine_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9303.649658802897
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:59",
+      "subject": "college_medicine_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11306.138032115996
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:116",
+      "subject": "college_medicine_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 14263.741528149694
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:95",
+      "subject": "college_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7859.02406880632
+    },
+    {
+      "example_id": "mmlu:test:college_medicine_test:8",
+      "subject": "college_medicine_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11862.674299627542
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:89",
+      "subject": "college_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12712.280927691609
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:4",
+      "subject": "college_physics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6746.337077114731
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:80",
+      "subject": "college_physics_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 13509.208344854414
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:30",
+      "subject": "college_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11183.94200084731
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:17",
+      "subject": "college_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14962.773496285081
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:65",
+      "subject": "college_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13987.269244156778
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:34",
+      "subject": "college_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8197.168997954577
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:53",
+      "subject": "college_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9668.475050944835
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:94",
+      "subject": "college_physics_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 11384.139004163444
+    },
+    {
+      "example_id": "mmlu:test:college_physics_test:98",
+      "subject": "college_physics_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11330.926360096782
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:95",
+      "subject": "computer_security_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 4032.703695818782
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:83",
+      "subject": "computer_security_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9554.747238289565
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:82",
+      "subject": "computer_security_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9784.640963654965
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:40",
+      "subject": "computer_security_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7480.449649039656
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:56",
+      "subject": "computer_security_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7393.2727058418095
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:75",
+      "subject": "computer_security_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13539.084475953132
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:81",
+      "subject": "computer_security_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9239.627562928945
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:41",
+      "subject": "computer_security_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7172.965864185244
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:39",
+      "subject": "computer_security_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8000.464260112494
+    },
+    {
+      "example_id": "mmlu:test:computer_security_test:36",
+      "subject": "computer_security_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9455.250150989741
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:157",
+      "subject": "conceptual_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13049.912289250642
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:104",
+      "subject": "conceptual_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14012.460405007005
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:112",
+      "subject": "conceptual_physics_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 13558.447037357837
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:0",
+      "subject": "conceptual_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13499.166515190154
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:3",
+      "subject": "conceptual_physics_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 10447.876315098256
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:204",
+      "subject": "conceptual_physics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9457.509446889162
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:131",
+      "subject": "conceptual_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4012.4775478616357
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:148",
+      "subject": "conceptual_physics_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 8398.939842358232
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:39",
+      "subject": "conceptual_physics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14910.114013124257
+    },
+    {
+      "example_id": "mmlu:test:conceptual_physics_test:95",
+      "subject": "conceptual_physics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 13591.329467948526
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:20",
+      "subject": "econometrics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12957.731912843883
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:54",
+      "subject": "econometrics_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 15060.784264001995
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:17",
+      "subject": "econometrics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 16267.444884870201
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:46",
+      "subject": "econometrics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12270.642512943596
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:27",
+      "subject": "econometrics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7548.668679315597
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:107",
+      "subject": "econometrics_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 10595.152852125466
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:94",
+      "subject": "econometrics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 15893.381579313427
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:13",
+      "subject": "econometrics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8070.699979085475
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:80",
+      "subject": "econometrics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9084.438044112176
+    },
+    {
+      "example_id": "mmlu:test:econometrics_test:96",
+      "subject": "econometrics_test",
+      "prediction": "",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11049.421679228544
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:103",
+      "subject": "electrical_engineering_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7106.012708041817
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:55",
+      "subject": "electrical_engineering_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5714.805470313877
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:122",
+      "subject": "electrical_engineering_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4858.543572947383
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:93",
+      "subject": "electrical_engineering_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8907.1124503389
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:46",
+      "subject": "electrical_engineering_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9858.51676017046
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:138",
+      "subject": "electrical_engineering_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12647.183843888342
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:6",
+      "subject": "electrical_engineering_test",
+      "prediction": "B",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 9416.778821963817
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:96",
+      "subject": "electrical_engineering_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9656.975461170077
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:67",
+      "subject": "electrical_engineering_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7671.947888098657
+    },
+    {
+      "example_id": "mmlu:test:electrical_engineering_test:28",
+      "subject": "electrical_engineering_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 12692.34586134553
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:237",
+      "subject": "elementary_mathematics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6447.079617995769
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:15",
+      "subject": "elementary_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9797.064795158803
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:144",
+      "subject": "elementary_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9740.843337960541
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:126",
+      "subject": "elementary_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11622.408519964665
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:98",
+      "subject": "elementary_mathematics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7731.735973618925
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:135",
+      "subject": "elementary_mathematics_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 10150.583629962057
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:75",
+      "subject": "elementary_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11276.148004923016
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:353",
+      "subject": "elementary_mathematics_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 7848.387419711798
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:88",
+      "subject": "elementary_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5388.728388119489
+    },
+    {
+      "example_id": "mmlu:test:elementary_mathematics_test:276",
+      "subject": "elementary_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 16798.69514517486
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:30",
+      "subject": "formal_logic_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 11206.705503631383
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:102",
+      "subject": "formal_logic_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10971.423006616533
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:61",
+      "subject": "formal_logic_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10008.441782090813
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:100",
+      "subject": "formal_logic_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9974.066118709743
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:6",
+      "subject": "formal_logic_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 10888.870486989617
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:25",
+      "subject": "formal_logic_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 6196.374584920704
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:88",
+      "subject": "formal_logic_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9967.010491993278
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:20",
+      "subject": "formal_logic_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11460.620325990021
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:56",
+      "subject": "formal_logic_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 12872.915546875447
+    },
+    {
+      "example_id": "mmlu:test:formal_logic_test:44",
+      "subject": "formal_logic_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 7359.031301923096
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:84",
+      "subject": "global_facts_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 12786.945603787899
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:92",
+      "subject": "global_facts_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 12079.331899061799
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:94",
+      "subject": "global_facts_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 5141.662733163685
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:79",
+      "subject": "global_facts_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6119.234341196716
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:32",
+      "subject": "global_facts_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 4788.588146213442
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:35",
+      "subject": "global_facts_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9552.60078702122
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:37",
+      "subject": "global_facts_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 12666.065349243581
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:15",
+      "subject": "global_facts_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 17548.23858337477
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:71",
+      "subject": "global_facts_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 10138.185823336244
+    },
+    {
+      "example_id": "mmlu:test:global_facts_test:39",
+      "subject": "global_facts_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10175.90153310448
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:107",
+      "subject": "high_school_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9444.614646025002
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:213",
+      "subject": "high_school_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5866.221605334431
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:153",
+      "subject": "high_school_biology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4997.10951000452
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:108",
+      "subject": "high_school_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10125.03945408389
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:110",
+      "subject": "high_school_biology_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 11353.499722667038
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:229",
+      "subject": "high_school_biology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12166.362967342138
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:29",
+      "subject": "high_school_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11481.047581881285
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:270",
+      "subject": "high_school_biology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9501.397491898388
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:68",
+      "subject": "high_school_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8731.062465813011
+    },
+    {
+      "example_id": "mmlu:test:high_school_biology_test:124",
+      "subject": "high_school_biology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13972.648040857166
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:85",
+      "subject": "high_school_chemistry_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14163.767019752413
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:152",
+      "subject": "high_school_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9962.005947250873
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:139",
+      "subject": "high_school_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14607.612144201994
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:55",
+      "subject": "high_school_chemistry_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12459.582910872996
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:172",
+      "subject": "high_school_chemistry_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10103.90648432076
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:182",
+      "subject": "high_school_chemistry_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 6800.985653419048
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:111",
+      "subject": "high_school_chemistry_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 13458.06689793244
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:46",
+      "subject": "high_school_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10201.87982171774
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:163",
+      "subject": "high_school_chemistry_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10451.219448819757
+    },
+    {
+      "example_id": "mmlu:test:high_school_chemistry_test:47",
+      "subject": "high_school_chemistry_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14117.00386274606
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:22",
+      "subject": "high_school_computer_science_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 13501.260377001017
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:10",
+      "subject": "high_school_computer_science_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10965.526642277837
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:45",
+      "subject": "high_school_computer_science_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11379.847104195505
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:2",
+      "subject": "high_school_computer_science_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 15505.412208847702
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:91",
+      "subject": "high_school_computer_science_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7390.350732952356
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:26",
+      "subject": "high_school_computer_science_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 6446.126502007246
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:17",
+      "subject": "high_school_computer_science_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 5220.72373284027
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:41",
+      "subject": "high_school_computer_science_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10331.993209198117
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:1",
+      "subject": "high_school_computer_science_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10557.557391934097
+    },
+    {
+      "example_id": "mmlu:test:high_school_computer_science_test:80",
+      "subject": "high_school_computer_science_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11909.483471885324
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:62",
+      "subject": "high_school_european_history_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 16402.32164505869
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:67",
+      "subject": "high_school_european_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11336.45575074479
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:104",
+      "subject": "high_school_european_history_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 7466.881349217147
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:42",
+      "subject": "high_school_european_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13406.688486691564
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:66",
+      "subject": "high_school_european_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5654.066218063235
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:119",
+      "subject": "high_school_european_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10581.598837394267
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:71",
+      "subject": "high_school_european_history_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 16592.388294171542
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:156",
+      "subject": "high_school_european_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13051.851156633347
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:56",
+      "subject": "high_school_european_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7708.49107997492
+    },
+    {
+      "example_id": "mmlu:test:high_school_european_history_test:73",
+      "subject": "high_school_european_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13840.185078792274
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:85",
+      "subject": "high_school_geography_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5990.421681199223
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:109",
+      "subject": "high_school_geography_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11448.092312086374
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:150",
+      "subject": "high_school_geography_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 6893.838661257178
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:37",
+      "subject": "high_school_geography_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9235.252582933754
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:40",
+      "subject": "high_school_geography_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13688.191296067089
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:0",
+      "subject": "high_school_geography_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8367.145401891321
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:104",
+      "subject": "high_school_geography_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 15286.186829674989
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:81",
+      "subject": "high_school_geography_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7231.176693923771
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:143",
+      "subject": "high_school_geography_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 9815.767224878073
+    },
+    {
+      "example_id": "mmlu:test:high_school_geography_test:189",
+      "subject": "high_school_geography_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 12029.637223575264
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:113",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "A",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 9995.387545786798
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:79",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9324.133933987468
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:169",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 16045.31486518681
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:146",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14692.71817104891
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:34",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13123.179017100483
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:175",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12703.158344142139
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:88",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9652.495939750224
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:81",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8350.336502771825
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:114",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10431.391157675534
+    },
+    {
+      "example_id": "mmlu:test:high_school_government_and_politics_test:139",
+      "subject": "high_school_government_and_politics_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 9748.069536872208
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:257",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 16341.08792617917
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:362",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11372.496747877449
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:104",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14345.398185309023
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:357",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10653.975661844015
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:102",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11902.751026209444
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:259",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13183.56826202944
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:14",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9371.672749053687
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:272",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10578.850870020688
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:44",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14516.876650042832
+    },
+    {
+      "example_id": "mmlu:test:high_school_macroeconomics_test:212",
+      "subject": "high_school_macroeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14589.407050050795
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:104",
+      "subject": "high_school_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11305.110503919423
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:200",
+      "subject": "high_school_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13125.75194472447
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:130",
+      "subject": "high_school_mathematics_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11838.575157802552
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:140",
+      "subject": "high_school_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10485.004639718682
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:251",
+      "subject": "high_school_mathematics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 15085.787694901228
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:129",
+      "subject": "high_school_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9732.11461585015
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:154",
+      "subject": "high_school_mathematics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13827.576018869877
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:43",
+      "subject": "high_school_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12355.088434182107
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:188",
+      "subject": "high_school_mathematics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8250.547747593373
+    },
+    {
+      "example_id": "mmlu:test:high_school_mathematics_test:73",
+      "subject": "high_school_mathematics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11310.69728313014
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:46",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5130.626327358186
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:86",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7704.076465219259
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:79",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 3899.2708660662174
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:4",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10723.079664167017
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:157",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8965.475862845778
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:62",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9212.27453975007
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:96",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11873.328292742372
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:51",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11030.294893775135
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:160",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7065.544410143048
+    },
+    {
+      "example_id": "mmlu:test:high_school_microeconomics_test:200",
+      "subject": "high_school_microeconomics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6034.59281520918
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:146",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9762.621480040252
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:40",
+      "subject": "high_school_physics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10670.820103026927
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:37",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9271.36080013588
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:77",
+      "subject": "high_school_physics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 13611.153572797775
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:123",
+      "subject": "high_school_physics_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 8026.65324928239
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:55",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8656.67172987014
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:70",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9397.784484084696
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:11",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 20693.066019564867
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:115",
+      "subject": "high_school_physics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8011.316556949168
+    },
+    {
+      "example_id": "mmlu:test:high_school_physics_test:76",
+      "subject": "high_school_physics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11088.39018503204
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:394",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 22369.217304047197
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:454",
+      "subject": "high_school_psychology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7133.100192062557
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:232",
+      "subject": "high_school_psychology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7691.414657980204
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:140",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 20316.553227137774
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:166",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 19634.59099084139
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:510",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 18523.359308950603
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:396",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 17869.937074836344
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:339",
+      "subject": "high_school_psychology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 21515.409652143717
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:350",
+      "subject": "high_school_psychology_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 13523.074669763446
+    },
+    {
+      "example_id": "mmlu:test:high_school_psychology_test:440",
+      "subject": "high_school_psychology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12465.231304988265
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:140",
+      "subject": "high_school_statistics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 20110.29094690457
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:161",
+      "subject": "high_school_statistics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8646.845051087439
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:141",
+      "subject": "high_school_statistics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9923.414423130453
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:11",
+      "subject": "high_school_statistics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 6229.0856637991965
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:195",
+      "subject": "high_school_statistics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8404.91200890392
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:74",
+      "subject": "high_school_statistics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14704.121677670628
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:79",
+      "subject": "high_school_statistics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11610.967695247382
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:0",
+      "subject": "high_school_statistics_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12705.669049173594
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:209",
+      "subject": "high_school_statistics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13425.564909819514
+    },
+    {
+      "example_id": "mmlu:test:high_school_statistics_test:37",
+      "subject": "high_school_statistics_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11894.496588036418
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:127",
+      "subject": "high_school_us_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7539.770967327058
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:57",
+      "subject": "high_school_us_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11430.685080122203
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:44",
+      "subject": "high_school_us_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8300.863653887063
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:119",
+      "subject": "high_school_us_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12202.138154301792
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:183",
+      "subject": "high_school_us_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 17682.984802871943
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:177",
+      "subject": "high_school_us_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 15926.805057097226
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:26",
+      "subject": "high_school_us_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 17946.670929901302
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:27",
+      "subject": "high_school_us_history_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 17785.437477752566
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:96",
+      "subject": "high_school_us_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 16343.343698885292
+    },
+    {
+      "example_id": "mmlu:test:high_school_us_history_test:141",
+      "subject": "high_school_us_history_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 7892.657212913036
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:232",
+      "subject": "high_school_world_history_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13443.926674779505
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:49",
+      "subject": "high_school_world_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13444.476290140301
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:57",
+      "subject": "high_school_world_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 14984.052467159927
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:50",
+      "subject": "high_school_world_history_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 10497.734283097088
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:74",
+      "subject": "high_school_world_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9097.497646231204
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:172",
+      "subject": "high_school_world_history_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9709.23921186477
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:102",
+      "subject": "high_school_world_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8052.23616072908
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:61",
+      "subject": "high_school_world_history_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6629.450581036508
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:123",
+      "subject": "high_school_world_history_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5147.532418835908
+    },
+    {
+      "example_id": "mmlu:test:high_school_world_history_test:141",
+      "subject": "high_school_world_history_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 13105.280600022525
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:192",
+      "subject": "human_aging_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14900.165277998894
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:42",
+      "subject": "human_aging_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 15810.223752167076
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:0",
+      "subject": "human_aging_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11439.747124910355
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:33",
+      "subject": "human_aging_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 5919.640404172242
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:30",
+      "subject": "human_aging_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8725.713371764868
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:156",
+      "subject": "human_aging_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 6817.687012720853
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:216",
+      "subject": "human_aging_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8383.316833060235
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:49",
+      "subject": "human_aging_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10114.703265018761
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:157",
+      "subject": "human_aging_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 15377.644434105605
+    },
+    {
+      "example_id": "mmlu:test:human_aging_test:5",
+      "subject": "human_aging_test",
+      "prediction": "A",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 11405.158342793584
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:39",
+      "subject": "human_sexuality_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12347.250467166305
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:116",
+      "subject": "human_sexuality_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9585.75622504577
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:100",
+      "subject": "human_sexuality_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 9374.35171380639
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:51",
+      "subject": "human_sexuality_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 4879.236017819494
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:71",
+      "subject": "human_sexuality_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 6079.460060689598
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:49",
+      "subject": "human_sexuality_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10958.841279149055
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:57",
+      "subject": "human_sexuality_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11122.317515313625
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:36",
+      "subject": "human_sexuality_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8940.294728148729
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:58",
+      "subject": "human_sexuality_test",
+      "prediction": "A",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 9395.001356024295
+    },
+    {
+      "example_id": "mmlu:test:human_sexuality_test:91",
+      "subject": "human_sexuality_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6622.336653992534
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:55",
+      "subject": "international_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9517.046285793185
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:117",
+      "subject": "international_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12998.675337992609
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:110",
+      "subject": "international_law_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7610.1134698838
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:87",
+      "subject": "international_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10202.07056729123
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:85",
+      "subject": "international_law_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 10408.718734048307
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:108",
+      "subject": "international_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 15337.633481249213
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:43",
+      "subject": "international_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 15166.93604318425
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:29",
+      "subject": "international_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10549.494098871946
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:77",
+      "subject": "international_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9544.827417004853
+    },
+    {
+      "example_id": "mmlu:test:international_law_test:58",
+      "subject": "international_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12300.002399366349
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:76",
+      "subject": "jurisprudence_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10000.52318815142
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:7",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11555.735928937793
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:9",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 10407.811446115375
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:42",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 9091.11745795235
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:64",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 8674.175666179508
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:75",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9360.341105144471
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:103",
+      "subject": "jurisprudence_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7214.686302933842
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:74",
+      "subject": "jurisprudence_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7456.51247818023
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:32",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 4584.846775047481
+    },
+    {
+      "example_id": "mmlu:test:jurisprudence_test:91",
+      "subject": "jurisprudence_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10912.433065008372
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:98",
+      "subject": "logical_fallacies_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 13572.004838846624
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:39",
+      "subject": "logical_fallacies_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 15807.413515634835
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:33",
+      "subject": "logical_fallacies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13056.776196230203
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:135",
+      "subject": "logical_fallacies_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12909.060270059854
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:83",
+      "subject": "logical_fallacies_test",
+      "prediction": "B",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 9565.790934022516
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:61",
+      "subject": "logical_fallacies_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12086.549676023424
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:24",
+      "subject": "logical_fallacies_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8239.143517334014
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:48",
+      "subject": "logical_fallacies_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10015.242951922119
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:140",
+      "subject": "logical_fallacies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8853.27858896926
+    },
+    {
+      "example_id": "mmlu:test:logical_fallacies_test:45",
+      "subject": "logical_fallacies_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 8662.574239075184
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:30",
+      "subject": "machine_learning_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8191.800393164158
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:7",
+      "subject": "machine_learning_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5992.303631734103
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:19",
+      "subject": "machine_learning_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 5973.490534350276
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:77",
+      "subject": "machine_learning_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 5739.45173388347
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:61",
+      "subject": "machine_learning_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 4546.307343058288
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:82",
+      "subject": "machine_learning_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9239.41286560148
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:33",
+      "subject": "machine_learning_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12613.761009182781
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:57",
+      "subject": "machine_learning_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8132.713013794273
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:18",
+      "subject": "machine_learning_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 14727.166699245572
+    },
+    {
+      "example_id": "mmlu:test:machine_learning_test:101",
+      "subject": "machine_learning_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10986.702509690076
+    },
+    {
+      "example_id": "mmlu:test:management_test:11",
+      "subject": "management_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12116.84994911775
+    },
+    {
+      "example_id": "mmlu:test:management_test:25",
+      "subject": "management_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10230.890430044383
+    },
+    {
+      "example_id": "mmlu:test:management_test:40",
+      "subject": "management_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9202.440878842026
+    },
+    {
+      "example_id": "mmlu:test:management_test:64",
+      "subject": "management_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10198.413887992501
+    },
+    {
+      "example_id": "mmlu:test:management_test:37",
+      "subject": "management_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9732.774371281266
+    },
+    {
+      "example_id": "mmlu:test:management_test:98",
+      "subject": "management_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 8078.4473600797355
+    },
+    {
+      "example_id": "mmlu:test:management_test:43",
+      "subject": "management_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7652.112737298012
+    },
+    {
+      "example_id": "mmlu:test:management_test:76",
+      "subject": "management_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9557.8828076832
+    },
+    {
+      "example_id": "mmlu:test:management_test:5",
+      "subject": "management_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5388.120409101248
+    },
+    {
+      "example_id": "mmlu:test:management_test:96",
+      "subject": "management_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 5425.457063131034
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:206",
+      "subject": "marketing_test",
+      "prediction": "",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 11566.950566135347
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:192",
+      "subject": "marketing_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11136.530595365912
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:204",
+      "subject": "marketing_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 10944.685210939497
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:145",
+      "subject": "marketing_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8992.083853110671
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:173",
+      "subject": "marketing_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10978.146113920957
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:160",
+      "subject": "marketing_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9061.855343636125
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:182",
+      "subject": "marketing_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 6165.651855990291
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:217",
+      "subject": "marketing_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 8663.551724981517
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:109",
+      "subject": "marketing_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8946.737715043128
+    },
+    {
+      "example_id": "mmlu:test:marketing_test:164",
+      "subject": "marketing_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9504.955854266882
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:41",
+      "subject": "medical_genetics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 17488.472565077245
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:47",
+      "subject": "medical_genetics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12030.922266189009
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:16",
+      "subject": "medical_genetics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 15283.284141216427
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:68",
+      "subject": "medical_genetics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13904.39657215029
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:10",
+      "subject": "medical_genetics_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 16259.22636827454
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:28",
+      "subject": "medical_genetics_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 11099.708232097328
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:9",
+      "subject": "medical_genetics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5867.07148887217
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:81",
+      "subject": "medical_genetics_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11464.438408613205
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:30",
+      "subject": "medical_genetics_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 8424.823308363557
+    },
+    {
+      "example_id": "mmlu:test:medical_genetics_test:18",
+      "subject": "medical_genetics_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 19780.347085092217
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:552",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11216.26681694761
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:622",
+      "subject": "miscellaneous_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 5615.816949401051
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:351",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8861.662489827722
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:475",
+      "subject": "miscellaneous_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8006.631406024098
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:160",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8026.260811835527
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:398",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8822.158687282354
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:71",
+      "subject": "miscellaneous_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11292.289207223803
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:316",
+      "subject": "miscellaneous_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10165.70664010942
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:694",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 9171.045208349824
+    },
+    {
+      "example_id": "mmlu:test:miscellaneous_test:13",
+      "subject": "miscellaneous_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 11314.121115021408
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:125",
+      "subject": "moral_disputes_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10560.049387160689
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:86",
+      "subject": "moral_disputes_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12281.561560928822
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:342",
+      "subject": "moral_disputes_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 7760.180219076574
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:221",
+      "subject": "moral_disputes_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9790.667987894267
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:11",
+      "subject": "moral_disputes_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 17246.490370016545
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:60",
+      "subject": "moral_disputes_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9074.334141332656
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:150",
+      "subject": "moral_disputes_test",
+      "prediction": "B",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 11061.390982940793
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:126",
+      "subject": "moral_disputes_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7703.0807551927865
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:142",
+      "subject": "moral_disputes_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13178.790364880115
+    },
+    {
+      "example_id": "mmlu:test:moral_disputes_test:235",
+      "subject": "moral_disputes_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6066.821005195379
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:708",
+      "subject": "moral_scenarios_test",
+      "prediction": "B",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 6882.36433127895
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:786",
+      "subject": "moral_scenarios_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8319.769454188645
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:501",
+      "subject": "moral_scenarios_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 12230.201807804406
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:469",
+      "subject": "moral_scenarios_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 11437.427205964923
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:803",
+      "subject": "moral_scenarios_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11646.132451016456
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:893",
+      "subject": "moral_scenarios_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11624.625619966537
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:565",
+      "subject": "moral_scenarios_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11372.949223965406
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:740",
+      "subject": "moral_scenarios_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 9124.730245675892
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:174",
+      "subject": "moral_scenarios_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 4177.346395328641
+    },
+    {
+      "example_id": "mmlu:test:moral_scenarios_test:587",
+      "subject": "moral_scenarios_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 9929.48822118342
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:305",
+      "subject": "nutrition_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13365.275566931814
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:254",
+      "subject": "nutrition_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13034.774361178279
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:253",
+      "subject": "nutrition_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11443.544626235962
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:39",
+      "subject": "nutrition_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 15768.796883989125
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:37",
+      "subject": "nutrition_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 7417.3652632161975
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:184",
+      "subject": "nutrition_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 16461.327105760574
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:8",
+      "subject": "nutrition_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10692.362564150244
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:25",
+      "subject": "nutrition_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 10276.192472316325
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:211",
+      "subject": "nutrition_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 18738.270170986652
+    },
+    {
+      "example_id": "mmlu:test:nutrition_test:95",
+      "subject": "nutrition_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7646.983443759382
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:283",
+      "subject": "philosophy_test",
+      "prediction": "A",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 11875.993137713522
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:190",
+      "subject": "philosophy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12846.802427899092
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:285",
+      "subject": "philosophy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12543.889455962926
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:148",
+      "subject": "philosophy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10680.869108997285
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:158",
+      "subject": "philosophy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 5209.29230004549
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:7",
+      "subject": "philosophy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13663.34180906415
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:173",
+      "subject": "philosophy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9547.064195852727
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:153",
+      "subject": "philosophy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7721.23892698437
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:231",
+      "subject": "philosophy_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 7473.402968142182
+    },
+    {
+      "example_id": "mmlu:test:philosophy_test:176",
+      "subject": "philosophy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6088.745662942529
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:82",
+      "subject": "prehistory_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6054.191218223423
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:37",
+      "subject": "prehistory_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 5745.492453221232
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:208",
+      "subject": "prehistory_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 3215.2926228009164
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:276",
+      "subject": "prehistory_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 9413.016295060515
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:277",
+      "subject": "prehistory_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 16961.704260203987
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:100",
+      "subject": "prehistory_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 16903.97370001301
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:110",
+      "subject": "prehistory_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9343.244472052902
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:268",
+      "subject": "prehistory_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12956.836695317179
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:70",
+      "subject": "prehistory_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12594.354725908488
+    },
+    {
+      "example_id": "mmlu:test:prehistory_test:309",
+      "subject": "prehistory_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6514.763813000172
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:272",
+      "subject": "professional_accounting_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7144.625067245215
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:20",
+      "subject": "professional_accounting_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 9571.920805145055
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:112",
+      "subject": "professional_accounting_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9111.767967231572
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:225",
+      "subject": "professional_accounting_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11049.033803865314
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:138",
+      "subject": "professional_accounting_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8907.876366749406
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:237",
+      "subject": "professional_accounting_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 10301.798494067043
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:59",
+      "subject": "professional_accounting_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 6530.8952098712325
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:60",
+      "subject": "professional_accounting_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8907.522154040635
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:179",
+      "subject": "professional_accounting_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9410.231386777014
+    },
+    {
+      "example_id": "mmlu:test:professional_accounting_test:218",
+      "subject": "professional_accounting_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8501.38623593375
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:1057",
+      "subject": "professional_law_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 13076.368174050003
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:428",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 15294.581764377654
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:290",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 10688.003170769662
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:164",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11668.37372398004
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:1040",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 15970.805782824755
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:1370",
+      "subject": "professional_law_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 6872.166119981557
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:1457",
+      "subject": "professional_law_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11866.130508016795
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:24",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 12328.32567486912
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:657",
+      "subject": "professional_law_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 18004.22715395689
+    },
+    {
+      "example_id": "mmlu:test:professional_law_test:126",
+      "subject": "professional_law_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 16477.303189225495
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:16",
+      "subject": "professional_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 16075.407261028886
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:180",
+      "subject": "professional_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9926.90223408863
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:143",
+      "subject": "professional_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7712.980670854449
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:108",
+      "subject": "professional_medicine_test",
+      "prediction": "A",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 14345.119049306959
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:208",
+      "subject": "professional_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11223.222834989429
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:163",
+      "subject": "professional_medicine_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12834.569854196161
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:74",
+      "subject": "professional_medicine_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 14532.951108179986
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:64",
+      "subject": "professional_medicine_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 13693.710053805262
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:98",
+      "subject": "professional_medicine_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 12355.072871316224
+    },
+    {
+      "example_id": "mmlu:test:professional_medicine_test:51",
+      "subject": "professional_medicine_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8154.53855227679
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:129",
+      "subject": "professional_psychology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6619.570203125477
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:304",
+      "subject": "professional_psychology_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 8736.807383596897
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:355",
+      "subject": "professional_psychology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 7666.869363281876
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:401",
+      "subject": "professional_psychology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9825.812873896211
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:276",
+      "subject": "professional_psychology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13984.09375268966
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:239",
+      "subject": "professional_psychology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 10256.810149177909
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:376",
+      "subject": "professional_psychology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 12081.113273277879
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:294",
+      "subject": "professional_psychology_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 11886.91763393581
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:556",
+      "subject": "professional_psychology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12285.247971303761
+    },
+    {
+      "example_id": "mmlu:test:professional_psychology_test:419",
+      "subject": "professional_psychology_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 9243.469114881009
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:69",
+      "subject": "public_relations_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4317.038326989859
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:22",
+      "subject": "public_relations_test",
+      "prediction": "C",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 9436.538745183498
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:97",
+      "subject": "public_relations_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12762.6285799779
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:44",
+      "subject": "public_relations_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11645.097590982914
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:41",
+      "subject": "public_relations_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 7148.119627963752
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:2",
+      "subject": "public_relations_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6863.324563018978
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:91",
+      "subject": "public_relations_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 5272.284215316176
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:45",
+      "subject": "public_relations_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4087.785351090133
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:48",
+      "subject": "public_relations_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 7316.796157043427
+    },
+    {
+      "example_id": "mmlu:test:public_relations_test:67",
+      "subject": "public_relations_test",
+      "prediction": "C",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 7612.367394845933
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:147",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 15662.408057134598
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:236",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11089.65491084382
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:27",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14898.439929820597
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:73",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13419.909317046404
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:166",
+      "subject": "security_studies_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 13151.090942323208
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:240",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 11908.85534323752
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:101",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 5604.349671397358
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:111",
+      "subject": "security_studies_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 9418.905337806791
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:244",
+      "subject": "security_studies_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 11422.725342679769
+    },
+    {
+      "example_id": "mmlu:test:security_studies_test:62",
+      "subject": "security_studies_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 12132.326871156693
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:196",
+      "subject": "sociology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 7466.562024783343
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:95",
+      "subject": "sociology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7556.722698733211
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:160",
+      "subject": "sociology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 6465.961256995797
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:101",
+      "subject": "sociology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 6540.567600168288
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:18",
+      "subject": "sociology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6132.103641983122
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:26",
+      "subject": "sociology_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 11778.53318490088
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:170",
+      "subject": "sociology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 8125.0563487410545
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:48",
+      "subject": "sociology_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 13640.49660321325
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:29",
+      "subject": "sociology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 14014.541808981448
+    },
+    {
+      "example_id": "mmlu:test:sociology_test:163",
+      "subject": "sociology_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 6312.834783922881
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:23",
+      "subject": "us_foreign_policy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6324.5371100492775
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:53",
+      "subject": "us_foreign_policy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 4792.878350708634
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:34",
+      "subject": "us_foreign_policy_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 6989.158214069903
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:8",
+      "subject": "us_foreign_policy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9477.468841243535
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:86",
+      "subject": "us_foreign_policy_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9480.758769903332
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:60",
+      "subject": "us_foreign_policy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 13817.350551951677
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:74",
+      "subject": "us_foreign_policy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 7207.418241072446
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:5",
+      "subject": "us_foreign_policy_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 8880.337393842638
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:98",
+      "subject": "us_foreign_policy_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 6962.598930113018
+    },
+    {
+      "example_id": "mmlu:test:us_foreign_policy_test:33",
+      "subject": "us_foreign_policy_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 5209.418727084994
+    },
+    {
+      "example_id": "mmlu:test:virology_test:30",
+      "subject": "virology_test",
+      "prediction": "A",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 5488.8875698670745
+    },
+    {
+      "example_id": "mmlu:test:virology_test:73",
+      "subject": "virology_test",
+      "prediction": "A",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 9316.210892051458
+    },
+    {
+      "example_id": "mmlu:test:virology_test:155",
+      "subject": "virology_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9006.741104181856
+    },
+    {
+      "example_id": "mmlu:test:virology_test:74",
+      "subject": "virology_test",
+      "prediction": "B",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 14713.301769923419
+    },
+    {
+      "example_id": "mmlu:test:virology_test:83",
+      "subject": "virology_test",
+      "prediction": "D",
+      "answer": "C",
+      "correct": false,
+      "latency_ms": 7097.255911678076
+    },
+    {
+      "example_id": "mmlu:test:virology_test:104",
+      "subject": "virology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 12729.876454919577
+    },
+    {
+      "example_id": "mmlu:test:virology_test:94",
+      "subject": "virology_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 9535.62567383051
+    },
+    {
+      "example_id": "mmlu:test:virology_test:152",
+      "subject": "virology_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 4732.232254929841
+    },
+    {
+      "example_id": "mmlu:test:virology_test:36",
+      "subject": "virology_test",
+      "prediction": "B",
+      "answer": "B",
+      "correct": true,
+      "latency_ms": 10923.693998716772
+    },
+    {
+      "example_id": "mmlu:test:virology_test:148",
+      "subject": "virology_test",
+      "prediction": "D",
+      "answer": "B",
+      "correct": false,
+      "latency_ms": 9012.084915302694
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:159",
+      "subject": "world_religions_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12089.512458071113
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:47",
+      "subject": "world_religions_test",
+      "prediction": "C",
+      "answer": "D",
+      "correct": false,
+      "latency_ms": 11643.57642037794
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:29",
+      "subject": "world_religions_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 14884.52681293711
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:24",
+      "subject": "world_religions_test",
+      "prediction": "D",
+      "answer": "A",
+      "correct": false,
+      "latency_ms": 12945.466805715114
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:139",
+      "subject": "world_religions_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 12532.078471034765
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:128",
+      "subject": "world_religions_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 8989.835891406983
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:108",
+      "subject": "world_religions_test",
+      "prediction": "C",
+      "answer": "C",
+      "correct": true,
+      "latency_ms": 9378.906735219061
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:154",
+      "subject": "world_religions_test",
+      "prediction": "D",
+      "answer": "D",
+      "correct": true,
+      "latency_ms": 9958.330917172134
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:68",
+      "subject": "world_religions_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 4060.2235347032547
+    },
+    {
+      "example_id": "mmlu:test:world_religions_test:33",
+      "subject": "world_religions_test",
+      "prediction": "A",
+      "answer": "A",
+      "correct": true,
+      "latency_ms": 8437.910790089518
+    }
+  ],
+  "formal_result_reason": "controlled subset and repository formal gates are incomplete"
+}
