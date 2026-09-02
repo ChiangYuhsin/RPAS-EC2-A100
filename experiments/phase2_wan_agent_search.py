@@ -90,8 +90,9 @@ HUMANEVAL_INSTRUCTION = (
 
 MMLU_INSTRUCTION = (
     "/no_think\n"
-    "Answer the multiple-choice question. Return exactly one final line in the format `FINAL ANSWER: X`, "
-    "where X is one of A, B, C, or D. Do not return any other answer letter on the final line.\n\n"
+    "Answer the multiple-choice question. Put the decision FIRST and return exactly one line, with no reasoning, "
+    "in the format `FINAL ANSWER: X`, where X is one of A, B, C, or D. Do not output any other text or answer "
+    "letter.\n\n"
 )
 
 

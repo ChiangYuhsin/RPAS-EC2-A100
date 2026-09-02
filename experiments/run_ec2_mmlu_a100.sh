@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+# This experiment is pinned to physical GPU 6. Refuse any override.
+export CUDA_VISIBLE_DEVICES="${RPAS_CUDA_VISIBLE_DEVICES:-6}"
+if [ "${CUDA_VISIBLE_DEVICES}" != "6" ]; then
+  echo "This runner only permits physical GPU 6; refusing CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}" >&2
+  exit 2
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${RPAS_REPO_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 RPAS_PYTHON_BIN="${RPAS_PYTHON_BIN:-python}"
@@ -16,6 +23,7 @@ EMBEDDING_MODEL="${RPAS_MAAS_EMBEDDING_MODEL:?set RPAS_MAAS_EMBEDDING_MODEL to t
 OUTPUT_DIR="${RPAS_OUTPUT_DIR:-${REPO_ROOT}/outputs/external_comparison/ec2_fixed_v5_a100}"
 VLLM_PORT="${RPAS_VLLM_PORT:-29500}"
 VLLM_LOG="${RPAS_VLLM_LOG:-${REPO_ROOT}/logs/vllm-ec2-a100.log}"
+CONFIG_PATH="${RPAS_MODEL_CONFIG:-${REPO_ROOT}/experiments/phase2_wan_agent_config_qwen35_9b_gpu6.json}"
 
 for required_dir in "${REPO_ROOT}" "${DATA_DIR}" "${MODEL_PATH}" "${GDESIGNER_ROOT}" "${EMBEDDING_MODEL}"; do
   if [ ! -d "${required_dir}" ]; then
@@ -23,6 +31,14 @@ for required_dir in "${REPO_ROOT}" "${DATA_DIR}" "${MODEL_PATH}" "${GDESIGNER_RO
     exit 2
   fi
 done
+if [ ! -f "${CONFIG_PATH}" ]; then
+  echo "model config is missing: ${CONFIG_PATH}" >&2
+  exit 2
+fi
+if rg -n -i 'gpu4|gpu5|gpu7|center_b|center_c' "${CONFIG_PATH}" >/dev/null; then
+  echo "GPU6-only config contains a forbidden GPU/site alias: ${CONFIG_PATH}" >&2
+  exit 2
+fi
 
 command -v "${RPAS_PYTHON_BIN}" >/dev/null
 command -v "${GDESIGNER_PYTHON_BIN}" >/dev/null
@@ -36,6 +52,7 @@ export GEPA_PHASE2_PROMPT_MODE=deliberate
 export GEPA_QWEN35_9B_API_BASE="http://127.0.0.1:${VLLM_PORT}/v1"
 export GEPA_QWEN35_9B_REMOTE_PROFILE_API_BASE="http://127.0.0.1:${VLLM_PORT}/v1"
 export RPAS_EXTERNAL_API_BASE="http://127.0.0.1:${VLLM_PORT}/v1"
+export RPAS_MODEL_CONFIG="${CONFIG_PATH}"
 export RPAS_GDESIGNER_ROOT="${GDESIGNER_ROOT}"
 export RPAS_MAAS_EMBEDDING_MODEL="${EMBEDDING_MODEL}"
 export RPAS_EXTERNAL_MODEL="Qwen/Qwen3.5-9B"
@@ -49,7 +66,7 @@ mkdir -p "${OUTPUT_DIR}" "$(dirname "${VLLM_LOG}")" "${REPO_ROOT}/logs"
 "${RPAS_PYTHON_BIN}" -m external_comparison.runners.mmlu \
   --data-dir "${DATA_DIR}" --output "${OUTPUT_DIR}/split_manifest.json"
 
-"${VLLM_BIN}" serve "${MODEL_PATH}" \
+CUDA_VISIBLE_DEVICES=6 "${VLLM_BIN}" serve "${MODEL_PATH}" \
   --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${VLLM_PORT}" \
   --tensor-parallel-size 1 --max-model-len 32768 --reasoning-parser qwen3 --language-model-only \
   >"${VLLM_LOG}" 2>&1 &
