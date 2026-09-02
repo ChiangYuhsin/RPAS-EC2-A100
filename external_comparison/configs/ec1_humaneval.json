@@ -1,0 +1,19 @@
+{
+  "experiment": "EC-1",
+  "dataset": "humaneval",
+  "role": "native_external_comparison",
+  "methods": ["aflow", "maas", "rpas"],
+  "search_seeds": [0, 1, 2],
+  "data_seed": 2026,
+  "split_sizes": {"search": 80, "select": 40, "test": 44},
+  "shortlist_size": 8,
+  "shared_inference": {
+    "backbone": "Qwen3.5-9B",
+    "temperature": 0.0,
+    "max_tokens": 6144,
+    "timeout_seconds": 10
+  },
+  "metrics": ["pass_at_1", "inference_calls", "inference_tokens", "search_calls", "search_tokens", "search_wall_clock"],
+  "native_adapter_policy": "formal_runs_require_native_adapter_and_frozen_source_manifest",
+  "status": "blocked_until_native_aflow_maas_adapters_and_dataset_manifest_are_ready"
+}

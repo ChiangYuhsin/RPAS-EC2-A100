@@ -1,0 +1,8 @@
+{
+  "dataset": "hotpotqa",
+  "role": "EC-3_workflow_generalization",
+  "methods": ["rpas", "aflow"],
+  "metrics": ["exact_match", "f1", "inference_calls", "inference_tokens", "search_calls", "search_tokens", "search_wall_time_s", "invalid_proposal_rate", "time_to_best"],
+  "implementation_status": "protocol_ready_data_and_adapter_contract_pending",
+  "todo": ["choose HotpotQA or DROP and freeze checksum", "freeze answer normalization", "implement AFlow native MCTS adapter"]
+}
