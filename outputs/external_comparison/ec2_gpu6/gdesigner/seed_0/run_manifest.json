@@ -3,8 +3,8 @@
   "method": "gdesigner",
   "dataset": "mmlu",
   "seed": 0,
-  "implementation_status": "official_graph_gcn",
-  "native_search": "gcn_topology_sampling",
+  "implementation_status": "controlled_official_graph_executor",
+  "native_search": "official_gcn_fixed_topology_execution",
   "official_repo": "external_baselines/GDesigner",
   "official_commit": "a6efcfa3b40bb4d9cbf46f883a95d62020bd8251",
   "search_calls": 0,
@@ -22,5 +22,8 @@
   "answer_parser": "strict_choice_a_b_c_d",
   "valid_answer_rate": 0.9982456140350877,
   "formal_result": false,
-  "formal_result_reason": "controlled subset and repository formal gates are incomplete"
+  "formal_result_reason": "controlled subset and repository formal gates are incomplete",
+  "dataset_label": "MMLU-57x10 controlled subset",
+  "search_candidates": 0,
+  "search_scope": "no separately instrumented topology-search phase"
 }

@@ -3,8 +3,8 @@
   "method": "rpas",
   "dataset": "mmlu",
   "seed": 1,
-  "implementation_status": "repository_phase2_executor_with_rpas_search_policy",
-  "native_search": "rpas_typed_mutation_and_pareto_parent_selection",
+  "implementation_status": "controlled_candidate_selection_pilot",
+  "native_search": "rpas_pareto_selection_over_predefined_candidates",
   "official_repo": "repository_root",
   "search_calls": 5806,
   "search_tokens": 1924910,
@@ -19,5 +19,9 @@
   "answer_parser": "strict_choice_a_b_c_d",
   "valid_answer_rate": 1,
   "formal_result": false,
-  "formal_result_reason": "controlled subset and repository formal gates are incomplete"
+  "formal_result_reason": "controlled subset and repository formal gates are incomplete",
+  "dataset_label": "MMLU-57x10 controlled subset",
+  "search_scope": "9 predefined architectures; no new reflective mutation",
+  "new_candidate_budget": 0,
+  "reflection_mode": "rule"
 }
