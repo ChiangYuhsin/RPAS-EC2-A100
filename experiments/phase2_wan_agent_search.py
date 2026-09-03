@@ -8,6 +8,7 @@ import math
 import os
 import random
 import re
+import socket
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
@@ -1963,20 +1964,48 @@ def read_cached_evaluation(cache_path: Path) -> dict[str, Any] | None:
     return result if isinstance(result, dict) else None
 
 
+def local_process_is_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def cache_lock_is_stale(lock_path: Path, *, stale_seconds: float) -> bool:
+    try:
+        if time.time() - lock_path.stat().st_mtime > stale_seconds:
+            return True
+        payload = read_json(lock_path)
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return True
+    owner_pid = payload.get("pid")
+    owner_host = str(payload.get("hostname", socket.gethostname()))
+    if owner_host == socket.gethostname() and isinstance(owner_pid, int):
+        return not local_process_is_alive(owner_pid)
+    return False
+
+
 def acquire_cache_lock(lock_path: Path, *, stale_seconds: float = 21600.0) -> bool:
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
         try:
-            if time.time() - lock_path.stat().st_mtime > stale_seconds:
+            if cache_lock_is_stale(lock_path, stale_seconds=stale_seconds):
                 lock_path.unlink()
                 return acquire_cache_lock(lock_path, stale_seconds=stale_seconds)
         except FileNotFoundError:
             return acquire_cache_lock(lock_path, stale_seconds=stale_seconds)
         return False
     with os.fdopen(descriptor, "w", encoding="utf-8") as fout:
-        fout.write(json.dumps({"pid": os.getpid(), "created_at": time.time()}))
+        fout.write(
+            json.dumps({"pid": os.getpid(), "hostname": socket.gethostname(), "created_at": time.time()})
+        )
     return True
 
 

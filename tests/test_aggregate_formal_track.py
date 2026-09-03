@@ -1,11 +1,13 @@
+import json
+import os
+import socket
 from pathlib import Path
 
+from experiments.phase2_wan_agent_search import acquire_cache_lock, cache_lock_is_stale
 from scripts.aggregate_formal_track import compact_run_record, make_row
 
 
 def _write_json(path: Path, payload: dict) -> None:
-    import json
-
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
@@ -101,3 +103,28 @@ def test_make_row_reports_search_and_test_totals() -> None:
     assert row["search_calls_mean"] == 103
     assert row["total_calls_mean"] == 133
     assert row["total_tokens_mean"] == 1350
+
+
+def test_cache_lock_reclaims_a_dead_local_owner(tmp_path: Path) -> None:
+    lock_path = tmp_path / "result.lock"
+    lock_path.write_text(
+        json.dumps({"pid": 999_999_999, "hostname": socket.gethostname(), "created_at": 0}),
+        encoding="utf-8",
+    )
+
+    assert cache_lock_is_stale(lock_path, stale_seconds=86_400)
+    assert acquire_cache_lock(lock_path, stale_seconds=86_400)
+    payload = json.loads(lock_path.read_text(encoding="utf-8"))
+    assert payload["pid"] == os.getpid()
+    assert payload["hostname"] == socket.gethostname()
+
+
+def test_cache_lock_preserves_a_live_local_owner(tmp_path: Path) -> None:
+    lock_path = tmp_path / "result.lock"
+    lock_path.write_text(
+        json.dumps({"pid": os.getpid(), "hostname": socket.gethostname(), "created_at": 0}),
+        encoding="utf-8",
+    )
+
+    assert not cache_lock_is_stale(lock_path, stale_seconds=86_400)
+    assert not acquire_cache_lock(lock_path, stale_seconds=86_400)
