@@ -5,7 +5,7 @@ import random
 
 import pytest
 
-from experiments.phase2_wan_agent_search import seed_architectures
+from experiments.phase2_wan_agent_search import seed_architectures, select_parent, utility_score
 from experiments.search_adapters.base import CandidateObservation
 from experiments.search_adapters.fake import DeterministicFakeAdapter
 from experiments.search_adapters.registry import build_adapter
@@ -48,3 +48,36 @@ def test_common_space_adapters_share_typed_contract(method_id: str) -> None:
         )
     )
     assert adapter.state_dict()["rows"][proposal.candidate_id]["score"] == 0.6
+
+
+@pytest.mark.parametrize("mode", ["aflow_style", "adas_style"])
+def test_formal_baseline_parent_policies_are_executable(mode: str) -> None:
+    rows = [
+        {
+            "candidate_id": "a",
+            "candidate": {"id": "a"},
+            "score": 0.5,
+            "avg_total_tokens": 100,
+            "avg_calls": 1,
+            "is_valid_candidate": True,
+        },
+        {
+            "candidate_id": "b",
+            "candidate": {"id": "b", "parent_id": "a"},
+            "score": 0.6,
+            "avg_total_tokens": 200,
+            "avg_calls": 2,
+            "is_valid_candidate": True,
+        },
+    ]
+    selected, source = select_parent(
+        rows,
+        random.Random(0),
+        mode,
+        pareto_parent_prob=0.5,
+        parent_score_band=0.05,
+        parent_top_k=6,
+    )
+    assert selected["candidate_id"] in {"a", "b"}
+    assert source in {"mcts_ucb", "meta_agent_quality_band"}
+    assert utility_score(selected, mode) == selected["score"]

@@ -22,10 +22,10 @@ from external_comparison.adapters.native_common import (
 from external_comparison.runners.mmlu import parse_mmlu_choice
 
 
-def _enforce_gpu6() -> None:
+def _enforce_authorized_gpu() -> None:
     visible = os.environ.get("CUDA_VISIBLE_DEVICES", "6")
-    if visible != "6":
-        raise RuntimeError(f"GPU6-only experiment refuses CUDA_VISIBLE_DEVICES={visible!r}")
+    if visible not in {"6", "7"}:
+        raise RuntimeError(f"experiment requires CUDA_VISIBLE_DEVICES=6 or 7, got {visible!r}")
 
 
 def _root() -> Path:
@@ -88,7 +88,7 @@ class _Dataset:
 
 
 async def _run(rows, output_dir: Path, seed: int) -> None:
-    _enforce_gpu6()
+    _enforce_authorized_gpu()
     root = _root()
     if not root.exists():
         raise FileNotFoundError(f"G-Designer repository not found: {root}")

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Run the remaining EC-2 MMLU experiment on a dedicated single-node A100.
+# Run an EC-2 MMLU experiment on one explicitly selected local A100.
 # The model is loaded once by vLLM; G-Designer and RPAS share that endpoint.
 
 set -euo pipefail
 
-# This experiment is pinned to physical GPU 6. Refuse any override.
+# Each server is deliberately bound to exactly one authorized physical GPU.
 export CUDA_VISIBLE_DEVICES="${RPAS_CUDA_VISIBLE_DEVICES:-6}"
-if [ "${CUDA_VISIBLE_DEVICES}" != "6" ]; then
-  echo "This runner only permits physical GPU 6; refusing CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}" >&2
+if [ "${CUDA_VISIBLE_DEVICES}" != "6" ] && [ "${CUDA_VISIBLE_DEVICES}" != "7" ]; then
+  echo "This runner requires RPAS_CUDA_VISIBLE_DEVICES=6 or 7; got ${CUDA_VISIBLE_DEVICES}" >&2
   exit 2
 fi
 
@@ -35,11 +35,6 @@ if [ ! -f "${CONFIG_PATH}" ]; then
   echo "model config is missing: ${CONFIG_PATH}" >&2
   exit 2
 fi
-if rg -n -i 'gpu4|gpu5|gpu7|center_b|center_c' "${CONFIG_PATH}" >/dev/null; then
-  echo "GPU6-only config contains a forbidden GPU/site alias: ${CONFIG_PATH}" >&2
-  exit 2
-fi
-
 command -v "${RPAS_PYTHON_BIN}" >/dev/null
 command -v "${GDESIGNER_PYTHON_BIN}" >/dev/null
 command -v "${VLLM_BIN}" >/dev/null
@@ -66,7 +61,7 @@ mkdir -p "${OUTPUT_DIR}" "$(dirname "${VLLM_LOG}")" "${REPO_ROOT}/logs"
 "${RPAS_PYTHON_BIN}" -m external_comparison.runners.mmlu \
   --data-dir "${DATA_DIR}" --output "${OUTPUT_DIR}/split_manifest.json"
 
-CUDA_VISIBLE_DEVICES=6 "${VLLM_BIN}" serve "${MODEL_PATH}" \
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${VLLM_BIN}" serve "${MODEL_PATH}" \
   --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${VLLM_PORT}" \
   --tensor-parallel-size 1 --max-model-len 32768 --reasoning-parser qwen3 --language-model-only \
   >"${VLLM_LOG}" 2>&1 &

@@ -313,6 +313,14 @@ def sha256_json(payload: Any) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def scientific_config_payload(config: dict[str, Any]) -> dict[str, Any]:
     excluded_keys = {"api_base", "api_key_env", "api_key_value"}
 
@@ -2211,7 +2219,7 @@ def select_operating_points(
 
 def utility_score(row: dict[str, Any], mode: str) -> float:
     score = float(row.get("score", 0.0))
-    if mode == "quality_only":
+    if mode in {"quality_only", "aflow_style", "adas_style"}:
         return score
     total_tokens = float(row.get("avg_total_tokens", 0.0))
     cross_tokens = float(row.get("avg_cross_center_tokens", 0.0))
@@ -3345,7 +3353,7 @@ def mutate_candidate(
         mutation = rng.choice(["site", "compression", "topology"])
     elif low_task_score:
         mutation = rng.choice(["topology", "model", "samples", "max_tokens"])
-    elif mode == "quality_only":
+    elif mode in {"quality_only", "adas_style"}:
         mutation = rng.choice(["topology", "model", "model", "samples", "max_tokens"])
     else:
         mutation = rng.choice(["model", "site", "compression", "topology", "samples", "max_tokens"])
@@ -3645,6 +3653,34 @@ def select_parent(
         if score_band:
             return rng.choice(score_band), f"top_score_band.band={parent_score_band:g}.top_k={parent_top_k}"
         return rng.choice(front), "pareto_front_fallback"
+    if mode == "aflow_style":
+        # A shallow UCB tree policy: completed child rollouts are visits.
+        total_children = max(
+            1,
+            sum(1 for row in evaluated if row.get("candidate", {}).get("parent_id")),
+        )
+
+        def ucb(row: dict[str, Any]) -> float:
+            visits = sum(
+                1
+                for child in evaluated
+                if child.get("candidate", {}).get("parent_id") == row.get("candidate_id")
+            )
+            return float(row.get("score", 0.0)) + 0.35 * math.sqrt(
+                math.log(total_children + 1) / (visits + 1)
+            )
+
+        return max(evaluated, key=ucb), "mcts_ucb"
+    if mode == "adas_style":
+        ranked = sorted(
+            evaluated,
+            key=lambda row: (
+                -float(row.get("score", 0.0)),
+                float(row.get("avg_total_tokens", 0.0)),
+                str(row.get("candidate_id", "")),
+            ),
+        )
+        return rng.choice(ranked[: max(1, min(4, len(ranked)))]), "meta_agent_quality_band"
     ranked = sorted(evaluated, key=lambda row: utility_score(row, mode), reverse=True)
     top_n = max(1, min(4, len(ranked)))
     return rng.choice(ranked[:top_n]), f"utility_top_{top_n}"
@@ -3834,6 +3870,24 @@ def run_search(
                 break
             if mode == "random" or not evaluated_rows:
                 children = [make_random_architecture(config, rng)]
+            elif mode == "aflow_style":
+                parent_row, parent_source = select_parent(
+                    evaluated_rows,
+                    rng,
+                    mode,
+                    pareto_parent_prob=pareto_parent_prob,
+                    parent_score_band=parent_score_band,
+                    parent_top_k=parent_top_k,
+                )
+                child = mutate_candidate(
+                    parent_row["candidate"],
+                    config,
+                    rng,
+                    parent_row=parent_row,
+                    mode=mode,
+                )
+                child["parent_source"] = parent_source
+                children = [child]
             else:
                 parent_row, parent_source = select_parent(
                     evaluated_rows,
@@ -4167,6 +4221,9 @@ def run_search(
         "prompt_protocol_version": PROMPT_PROTOCOL_VERSION,
         "evaluation_cache_version": EVALUATION_CACHE_VERSION,
         "code_commit": os.environ.get("GEPA_CODE_COMMIT", ""),
+        "runtime_cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
+        "formal_result": False,
+        "formal_result_reason": "formal G1-G9 gates must be verified by the formal aggregator",
         "mode": mode,
         "search_seed": seed,
         "data_seed": (metadata or {}).get("data_seed", ""),
@@ -4435,7 +4492,11 @@ def configure_site_penalties(sites: dict[str, SiteSpec], orchestrator_site: str 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="WAN-aware training-free multi-agent architecture search.")
     parser.add_argument("--config", default="experiments/phase2_wan_agent_config.json")
-    parser.add_argument("--mode", choices=["baselines", "random", "quality_only", "wan_pareto"], default="baselines")
+    parser.add_argument(
+        "--mode",
+        choices=["baselines", "random", "aflow_style", "adas_style", "quality_only", "wan_pareto"],
+        default="baselines",
+    )
     parser.add_argument("--network-profile", default="wan_normal")
     parser.add_argument(
         "--topologies",
@@ -4480,6 +4541,10 @@ def parse_args() -> argparse.Namespace:
         help="Size of disjoint D_select. Must be paired with --search-size for protocol-v1 runs.",
     )
     parser.add_argument("--test-size", type=int, default=30)
+    parser.add_argument(
+        "--dataset-manifest",
+        help="Optional frozen dataset manifest. Its content hash is recorded without a local path.",
+    )
     parser.add_argument(
         "--search-examples",
         type=int,
@@ -4715,6 +4780,14 @@ def main() -> None:
             else output_dir.parent
         )
         evaluation_cache_dir = profile_dir / "_shared_eval_cache" / f"seed_{args.seed}"
+    dataset_manifest_sha256 = ""
+    dataset_manifest_name = ""
+    if args.dataset_manifest:
+        dataset_manifest_path = Path(args.dataset_manifest)
+        if not dataset_manifest_path.is_file():
+            raise FileNotFoundError(f"dataset manifest is missing: {dataset_manifest_path}")
+        dataset_manifest_sha256 = sha256_file(dataset_manifest_path)
+        dataset_manifest_name = dataset_manifest_path.name
     metadata = {
         "config_path": str(config_path),
         "dataset": args.dataset,
@@ -4737,6 +4810,8 @@ def main() -> None:
         "mode": args.mode,
         "seed": args.seed,
         "data_seed": args.data_seed,
+        "dataset_manifest_name": dataset_manifest_name,
+        "dataset_manifest_sha256": dataset_manifest_sha256,
         "train_size": args.train_size,
         "val_size": args.val_size,
         "search_size": len(searchset),
