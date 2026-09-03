@@ -18,9 +18,27 @@ from dataclasses import dataclass
 from typing import Any
 
 import torch
+import torch.nn.functional as F
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from transformers import AutoProcessor, Qwen3_5ForConditionalGeneration
+
+
+def _safe_causal_conv1d_update(hidden_states, conv_state, weight, bias=None, activation=None):
+    """Fallback for causal-conv1d 1.2's incompatible 3-D update wrapper."""
+    _, hidden_size, seq_len = hidden_states.shape
+    state_len = conv_state.shape[-1]
+    joined = torch.cat([conv_state, hidden_states], dim=-1).to(weight.dtype)
+    conv_state.copy_(joined[:, :, -state_len:])
+    out = F.conv1d(joined, weight.unsqueeze(1), bias, padding=0, groups=hidden_size)
+    out = out[:, :, -seq_len:]
+    if activation is not None:
+        out = getattr(F, activation)(out) if hasattr(F, activation) else torch.nn.functional.silu(out)
+    return out.to(hidden_states.dtype)
+
+
+import transformers.models.qwen3_5.modeling_qwen3_5 as _qwen35_impl
+_qwen35_impl.causal_conv1d_update = _safe_causal_conv1d_update
 
 
 class ChatRequest(BaseModel):
@@ -90,6 +108,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     processor = AutoProcessor.from_pretrained(args.model)
+    # Decoder-only generation must left-pad batched prompts; right padding
+    # changes the position of the final token and corrupts continuations.
+    processor.tokenizer.padding_side = "left"
     model = Qwen3_5ForConditionalGeneration.from_pretrained(
         args.model, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
     ).to("cuda").eval()

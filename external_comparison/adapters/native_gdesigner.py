@@ -23,9 +23,10 @@ from external_comparison.runners.mmlu import parse_mmlu_choice
 
 
 def _enforce_authorized_gpu() -> None:
-    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "6")
-    if visible not in {"6", "7"}:
-        raise RuntimeError(f"experiment requires CUDA_VISIBLE_DEVICES=6 or 7, got {visible!r}")
+    # The controlled comparison is authorized only on the user's two cards.
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "4")
+    if visible not in {"4", "5"}:
+        raise RuntimeError(f"experiment requires CUDA_VISIBLE_DEVICES=4 or 5, got {visible!r}")
 
 
 def _root() -> Path:
