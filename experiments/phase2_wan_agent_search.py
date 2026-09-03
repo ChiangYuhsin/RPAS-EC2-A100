@@ -29,7 +29,7 @@ DEFAULT_MASBENCH_DATA_DIR = "data/masbench"
 MASBENCH_AXES = ("breadth", "depth", "horizon", "parallel", "robustness")
 MASBENCH_ANSWER_SEPARATOR = "<<horizon>>"
 MASBENCH_PROTOCOL_VERSION = "masbench_igsm_mod23_v1"
-PROMPT_PROTOCOL_VERSION = "rpas_roles_reflection_v3"
+PROMPT_PROTOCOL_VERSION = "rpas_roles_reflection_v4_explicit_terminal_marker"
 EVALUATION_CACHE_VERSION = "rpas_shared_eval_v2"
 EXPERIMENT_PROTOCOL_VERSION = "rpas_experiment_protocol_v1.0"
 MIN_VALID_EXECUTION_RATE = 0.99
@@ -41,14 +41,16 @@ EFFICIENCY_QUALITY_DELTA = 0.05
 ANSWER_FIRST_INSTRUCTION = (
     "/no_think\n"
     "Solve the problem. Your first line must be exactly `### ANSWER`, where ANSWER is only the final "
-    "numeric answer or simplified fraction. Do not write hidden reasoning. Keep any explanation brief.\n\n"
+    "numeric answer or simplified fraction. Do not write hidden reasoning. Keep any explanation brief. "
+    "After that answer line, write one final line exactly `<<RPAS_END>>` and nothing else.\n\n"
 )
 
 DELIBERATE_INSTRUCTION = (
     "/no_think\n"
     "Solve the problem carefully. You may write concise reasoning, but avoid hidden chain-of-thought tags. "
     "End your response with a separate final line exactly in the format `### ANSWER`, where ANSWER is only "
-    "the final numeric answer or simplified fraction.\n\n"
+    "the final numeric answer or simplified fraction. After that answer line, write one final line exactly "
+    "`<<RPAS_END>>` and nothing else.\n\n"
 )
 
 THINKING_DELIBERATE_INSTRUCTION = (

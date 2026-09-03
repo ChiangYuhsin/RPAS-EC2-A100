@@ -79,6 +79,10 @@ def parse_args() -> argparse.Namespace:
         default=25.0,
         help="Brief queueing interval used to form a dynamic inference batch.",
     )
+    parser.add_argument(
+        "--stop-string",
+        help="Optional explicit terminal marker. It is stripped from returned content after stopping.",
+    )
     parser.add_argument("--enable-thinking", action="store_true")
     return parser.parse_args()
 
@@ -116,6 +120,9 @@ def main() -> None:
         }
         if do_sample:
             generation_kwargs["temperature"] = temperature
+        if args.stop_string:
+            generation_kwargs["stop_strings"] = [args.stop_string]
+            generation_kwargs["tokenizer"] = processor.tokenizer
         with torch.inference_mode():
             generated = model.generate(**inputs, **generation_kwargs)
 
@@ -140,9 +147,12 @@ def main() -> None:
                 skip_special_tokens=True,
                 clean_up_tokenization_spaces=False,
             )[0]
+            stopped_at_marker = bool(args.stop_string and args.stop_string in content)
+            if stopped_at_marker:
+                content = content.split(args.stop_string, 1)[0].rstrip()
             prompt_tokens = int(inputs.attention_mask[index].sum().item())
             completion_tokens = int(completion_length)
-            finish_reason = "stop" if eos_index is not None else "length"
+            finish_reason = "stop" if eos_index is not None or stopped_at_marker else "length"
             responses.append(
                 {
                     "id": f"chatcmpl-{uuid.uuid4().hex}",
