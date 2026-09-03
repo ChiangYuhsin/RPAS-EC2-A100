@@ -13,6 +13,8 @@ import asyncio
 import time
 import uuid
 from contextlib import asynccontextmanager
+from contextlib import suppress
+from dataclasses import dataclass
 from typing import Any
 
 import torch
@@ -27,6 +29,12 @@ class ChatRequest(BaseModel):
     max_tokens: int | None = Field(default=1024, ge=1)
     temperature: float | None = Field(default=0.0, ge=0.0)
     stream: bool = False
+
+
+@dataclass
+class PendingRequest:
+    request: ChatRequest
+    future: asyncio.Future[dict[str, Any]]
 
 
 def message_text(message: dict[str, Any]) -> str:
@@ -59,6 +67,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=29600)
     parser.add_argument("--max-new-tokens", type=int, default=4096)
+    parser.add_argument(
+        "--max-batch-size",
+        type=int,
+        default=4,
+        help="Maximum compatible requests generated together on this one GPU.",
+    )
+    parser.add_argument(
+        "--batch-wait-ms",
+        type=float,
+        default=25.0,
+        help="Brief queueing interval used to form a dynamic inference batch.",
+    )
     parser.add_argument("--enable-thinking", action="store_true")
     return parser.parse_args()
 
@@ -69,11 +89,116 @@ def main() -> None:
     model = Qwen3_5ForConditionalGeneration.from_pretrained(
         args.model, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
     ).to("cuda").eval()
-    generation_lock = asyncio.Lock()
+    request_queue: asyncio.Queue[PendingRequest] = asyncio.Queue()
+
+    def request_generation_key(request: ChatRequest) -> tuple[int, bool, float]:
+        max_new_tokens = min(request.max_tokens or 1024, args.max_new_tokens)
+        do_sample = bool(request.temperature and request.temperature > 0.0)
+        return max_new_tokens, do_sample, float(request.temperature or 0.0)
+
+    def generate_batch(items: list[PendingRequest]) -> list[dict[str, Any]]:
+        requests = [item.request for item in items]
+        max_new_tokens, do_sample, temperature = request_generation_key(requests[0])
+        conversations = [normalized_messages(request.messages) for request in requests]
+        inputs = processor.apply_chat_template(
+            conversations,
+            tokenize=True,
+            add_generation_prompt=True,
+            enable_thinking=args.enable_thinking,
+            return_dict=True,
+            return_tensors="pt",
+            processor_kwargs={"padding": True},
+        ).to(model.device)
+        generation_kwargs: dict[str, Any] = {
+            "max_new_tokens": max_new_tokens,
+            "do_sample": do_sample,
+            "pad_token_id": processor.tokenizer.pad_token_id,
+        }
+        if do_sample:
+            generation_kwargs["temperature"] = temperature
+        with torch.inference_mode():
+            generated = model.generate(**inputs, **generation_kwargs)
+
+        input_width = int(inputs.input_ids.shape[1])
+        eos_token_ids = processor.tokenizer.eos_token_id
+        if isinstance(eos_token_ids, int):
+            eos_token_ids = {eos_token_ids}
+        else:
+            eos_token_ids = set(eos_token_ids or [])
+        responses = []
+        for index, request in enumerate(requests):
+            raw_completion_ids = generated[index, input_width:]
+            raw_tokens = raw_completion_ids.tolist()
+            eos_index = next(
+                (token_index for token_index, token_id in enumerate(raw_tokens) if token_id in eos_token_ids),
+                None,
+            )
+            completion_length = (eos_index + 1) if eos_index is not None else len(raw_tokens)
+            completion_ids = raw_completion_ids[:completion_length]
+            content = processor.batch_decode(
+                completion_ids.unsqueeze(0),
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )[0]
+            prompt_tokens = int(inputs.attention_mask[index].sum().item())
+            completion_tokens = int(completion_length)
+            finish_reason = "stop" if eos_index is not None else "length"
+            responses.append(
+                {
+                    "id": f"chatcmpl-{uuid.uuid4().hex}",
+                    "object": "chat.completion",
+                    "created": int(time.time()),
+                    "model": request.model or args.served_model_name,
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {"role": "assistant", "content": content},
+                            "finish_reason": finish_reason,
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": prompt_tokens,
+                        "completion_tokens": completion_tokens,
+                        "total_tokens": prompt_tokens + completion_tokens,
+                    },
+                }
+            )
+        return responses
+
+    async def batch_worker() -> None:
+        while True:
+            first = await request_queue.get()
+            pending = [first]
+            await asyncio.sleep(max(0.0, args.batch_wait_ms) / 1000.0)
+            while len(pending) < args.max_batch_size:
+                try:
+                    pending.append(request_queue.get_nowait())
+                except asyncio.QueueEmpty:
+                    break
+            groups: dict[tuple[int, bool, float], list[PendingRequest]] = {}
+            for item in pending:
+                groups.setdefault(request_generation_key(item.request), []).append(item)
+            for items in groups.values():
+                try:
+                    responses = await asyncio.to_thread(generate_batch, items)
+                except Exception as exc:  # Surface model/runtime failures to every affected caller.
+                    for item in items:
+                        if not item.future.done():
+                            item.future.set_exception(exc)
+                else:
+                    for item, response in zip(items, responses):
+                        if not item.future.done():
+                            item.future.set_result(response)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        yield
+        worker = asyncio.create_task(batch_worker())
+        try:
+            yield
+        finally:
+            worker.cancel()
+            with suppress(asyncio.CancelledError):
+                await worker
         del model
         torch.cuda.empty_cache()
 
@@ -94,55 +219,9 @@ def main() -> None:
         if not request.messages:
             raise HTTPException(status_code=400, detail="messages must not be empty")
 
-        async with generation_lock:
-            inputs = processor.apply_chat_template(
-                normalized_messages(request.messages),
-                tokenize=True,
-                add_generation_prompt=True,
-                enable_thinking=args.enable_thinking,
-                return_dict=True,
-                return_tensors="pt",
-            ).to(model.device)
-            max_new_tokens = min(request.max_tokens or 1024, args.max_new_tokens)
-            do_sample = bool(request.temperature and request.temperature > 0.0)
-            generation_kwargs: dict[str, Any] = {
-                "max_new_tokens": max_new_tokens,
-                "do_sample": do_sample,
-                "pad_token_id": processor.tokenizer.pad_token_id,
-            }
-            if do_sample:
-                generation_kwargs["temperature"] = request.temperature
-            with torch.inference_mode():
-                generated = model.generate(**inputs, **generation_kwargs)
-            completion_ids = generated[:, inputs.input_ids.shape[1] :]
-            content = processor.batch_decode(
-                completion_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )[0]
-
-        prompt_tokens = int(inputs.input_ids.shape[1])
-        completion_tokens = int(completion_ids.shape[1])
-        # `generate` returns exactly max_new_tokens when the generation limit
-        # fires. Expose that fact through the standard OpenAI finish reason so
-        # the experiment can reject or report truncated predictions.
-        finish_reason = "length" if completion_tokens >= max_new_tokens else "stop"
-        return {
-            "id": f"chatcmpl-{uuid.uuid4().hex}",
-            "object": "chat.completion",
-            "created": int(time.time()),
-            "model": request.model or args.served_model_name,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {"role": "assistant", "content": content},
-                    "finish_reason": finish_reason,
-                }
-            ],
-            "usage": {
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": prompt_tokens + completion_tokens,
-            },
-        }
+        future: asyncio.Future[dict[str, Any]] = asyncio.get_running_loop().create_future()
+        await request_queue.put(PendingRequest(request=request, future=future))
+        return await future
 
     import uvicorn
 
