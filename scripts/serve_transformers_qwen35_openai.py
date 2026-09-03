@@ -121,6 +121,10 @@ def main() -> None:
 
         prompt_tokens = int(inputs.input_ids.shape[1])
         completion_tokens = int(completion_ids.shape[1])
+        # `generate` returns exactly max_new_tokens when the generation limit
+        # fires. Expose that fact through the standard OpenAI finish reason so
+        # the experiment can reject or report truncated predictions.
+        finish_reason = "length" if completion_tokens >= max_new_tokens else "stop"
         return {
             "id": f"chatcmpl-{uuid.uuid4().hex}",
             "object": "chat.completion",
@@ -130,7 +134,7 @@ def main() -> None:
                 {
                     "index": 0,
                     "message": {"role": "assistant", "content": content},
-                    "finish_reason": "stop",
+                    "finish_reason": finish_reason,
                 }
             ],
             "usage": {
