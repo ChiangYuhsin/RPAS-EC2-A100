@@ -1008,7 +1008,14 @@ def load_masbench_dataset(
 
 
 def load_models(raw_models: dict[str, dict[str, Any]]) -> dict[str, ModelSpec]:
-    return {name: ModelSpec(name=name, **payload) for name, payload in raw_models.items()}
+    models = {}
+    for name, raw_payload in raw_models.items():
+        payload = dict(raw_payload)
+        api_base_override = os.environ.get(f"GEPA_{name.upper()}_API_BASE")
+        if api_base_override:
+            payload["api_base"] = api_base_override
+        models[name] = ModelSpec(name=name, **payload)
+    return models
 
 
 def load_sites(raw_sites: dict[str, dict[str, Any]]) -> dict[str, SiteSpec]:
