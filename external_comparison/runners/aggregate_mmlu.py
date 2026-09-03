@@ -51,13 +51,17 @@ def _load_seed(run_dir: Path) -> dict:
     }
 
 
-def aggregate(root: str | Path, output_dir: str | Path) -> dict:
+def aggregate(
+    root: str | Path,
+    output_dir: str | Path,
+    methods: tuple[str, ...] = ("rpas", "gdesigner"),
+) -> dict:
     root = Path(root)
     rows = []
-    for method in ("rpas", "gdesigner"):
+    for method in methods:
         for seed in (0, 1, 2):
             rows.append(_load_seed(root / method / f"seed_{seed}"))
-    grouped: dict[str, list[dict]] = {method: [r for r in rows if r["method"] == method] for method in ("rpas", "gdesigner")}
+    grouped: dict[str, list[dict]] = {method: [r for r in rows if r["method"] == method] for method in methods}
     table = []
     for method, method_rows in grouped.items():
         if len(method_rows) != 3:
@@ -93,8 +97,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", required=True, help=".../ec2_gpu6/{rpas,gdesigner}")
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--methods", nargs="+", default=["vanilla", "rpas_no_selection", "gdesigner", "rpas"])
     args = parser.parse_args()
-    print(json.dumps(aggregate(args.root, args.output_dir), ensure_ascii=False, indent=2))
+    print(json.dumps(aggregate(args.root, args.output_dir, tuple(args.methods)), ensure_ascii=False, indent=2))
     return 0
 
 

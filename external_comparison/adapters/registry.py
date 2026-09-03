@@ -14,6 +14,8 @@ NATIVE_ADAPTER_MODULES = {
     "maas": "external_comparison.adapters.native_maas",
     "gdesigner": "external_comparison.adapters.native_gdesigner",
     "rpas": "external_comparison.adapters.native_rpas",
+    "vanilla": "external_comparison.adapters.native_rpas",
+    "rpas_no_selection": "external_comparison.adapters.native_rpas",
 }
 
 

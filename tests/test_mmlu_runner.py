@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from external_comparison.adapters.native_common import write_native_result
-from external_comparison.adapters.native_rpas import _protocol_mmlu_candidate
+from external_comparison.adapters.native_rpas import _fixed_mmlu_candidate, _protocol_mmlu_candidate
 from external_comparison.runners.aggregate_mmlu import aggregate
 from external_comparison.runners.mmlu import (
     MMLU_SUBJECTS,
@@ -38,6 +38,15 @@ def test_rpas_mmlu_candidate_freezes_protocol_decoding() -> None:
     assert all(agent["max_tokens"] == 256 for agent in prepared["agents"])
     assert candidate["temperature"] == 0.3
     assert "max_tokens" not in candidate["agents"][1]
+
+
+def test_mmlu_ablations_use_predeclared_distinct_architectures() -> None:
+    candidates = [
+        {"name": "single_local", "topology": "single"},
+        {"name": "solver_verifier_local", "topology": "solver_verifier"},
+    ]
+    assert _fixed_mmlu_candidate(candidates, "vanilla")["name"] == "single_local"
+    assert _fixed_mmlu_candidate(candidates, "rpas_no_selection")["name"] == "solver_verifier_local"
 
 
 def test_native_result_records_invalid_answer_rate(tmp_path: Path) -> None:

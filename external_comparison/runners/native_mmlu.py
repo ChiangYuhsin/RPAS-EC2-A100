@@ -12,7 +12,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--data-dir", required=True)
-    parser.add_argument("--method", choices=["gdesigner", "rpas"], required=True)
+    parser.add_argument(
+        "--method",
+        choices=["vanilla", "rpas_no_selection", "gdesigner", "rpas"],
+        required=True,
+    )
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()

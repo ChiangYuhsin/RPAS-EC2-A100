@@ -2,7 +2,7 @@
   "experiment": "EC-2",
   "dataset": "mmlu",
   "role": "native_external_communication_comparison",
-  "methods": ["gdesigner", "rpas"],
+  "methods": ["vanilla", "rpas_no_selection", "gdesigner", "rpas"],
   "search_seeds": [0, 1, 2],
   "data_seed": 2026,
   "subjects": "all_57_mmlu_subjects",
@@ -20,5 +20,5 @@
   },
   "metrics": ["accuracy", "active_edges", "messages_per_query", "inter_agent_tokens", "calls", "total_tokens", "latency_ms"],
   "native_adapter_policy": "formal_runs_require_native_gdesigner_adapter_and_frozen_source_manifest",
-  "status": "blocked_until_native_gdesigner_adapter_and_dataset_manifest_are_ready"
+  "status": "controlled_mmlu_57x10_ablation_and_external_comparison"
 }

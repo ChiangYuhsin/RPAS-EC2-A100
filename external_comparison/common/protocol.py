@@ -26,11 +26,15 @@ CONTROLLED_SEARCH_METHODS: Final[tuple[str, ...]] = (
     "rpas",
 )
 
-# These are the methods that the external-comparison plan permits us to call
-# external baselines.  They are deliberately separate from the common-space
-# proxies above; a proxy must never be reported under the paper method name.
+# EC-2 combines the external G-Designer executor with two explicitly labelled
+# ablations.  The ablations are never aliases for an external baseline.
 EC1_EXTERNAL_METHODS: Final[tuple[str, ...]] = ("aflow", "maas", "rpas")
-EC2_EXTERNAL_METHODS: Final[tuple[str, ...]] = ("gdesigner", "rpas")
+EC2_EXTERNAL_METHODS: Final[tuple[str, ...]] = (
+    "vanilla",
+    "rpas_no_selection",
+    "gdesigner",
+    "rpas",
+)
 EXTERNAL_METHODS: Final[tuple[str, ...]] = EC1_EXTERNAL_METHODS + ("gdesigner",)
 SEARCH_METHODS: Final[tuple[str, ...]] = CONTROLLED_SEARCH_METHODS
 
