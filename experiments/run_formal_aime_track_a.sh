@@ -46,6 +46,8 @@ if [[ "${INFERENCE_BACKEND}" == "transformers" ]]; then
   "${PYTHON_BIN}" scripts/serve_transformers_qwen35_openai.py \
     --model "${MODEL_PATH}" --served-model-name "Qwen/Qwen3.5-9B" \
     --host 127.0.0.1 --port "${PORT}" --max-new-tokens 4096 \
+    --max-batch-size "${RPAS_BATCH_SIZE:-8}" --batch-wait-ms "${RPAS_BATCH_WAIT_MS:-25}" \
+    --stop-string "${RPAS_STOP_STRING:-<<RPAS_END>>}" \
     >"${LOG_DIR}/inference.log" 2>&1 &
 elif [[ "${INFERENCE_BACKEND}" == "vllm" ]]; then
   "${VLLM_BIN}" serve "${MODEL_PATH}" \
@@ -83,7 +85,7 @@ for seed in ${SEEDS}; do
       --dataset aime --data-dir "${DATA_DIR}" --aime-test-file aime_2025.jsonl \
       --search-size 60 --selection-size 30 --test-size 30 --search-examples 60 \
       --seed-candidates 9 --new-candidate-budget "${NEW_CANDIDATE_BUDGET}" --selection-shortlist-size 8 \
-      --test-top-k 1 --eval-concurrency "${RPAS_EVAL_CONCURRENCY:-4}" \
+      --test-top-k 1 --eval-concurrency "${RPAS_EVAL_CONCURRENCY:-8}" \
       --seed "${seed}" --data-seed 2026 --reflection-mode llm \
       --dataset-manifest "${DATA_DIR}/dataset_manifest.json" --output-dir "${OUTPUT_ROOT}" \
       2>&1 | tee "${LOG_DIR}/${method}_seed${seed}.log"
@@ -93,7 +95,7 @@ for seed in ${SEEDS}; do
       --primary-run "${PRIMARY_RUN}" --config "${CONFIG}" --data-dir "${DATA_DIR}" \
       --test-file aime_2026.jsonl \
       --output "${PRIMARY_RUN}/secondary_test_aime_2026.json" \
-      --eval-concurrency "${RPAS_EVAL_CONCURRENCY:-4}" \
+      --eval-concurrency "${RPAS_EVAL_CONCURRENCY:-8}" \
       2>&1 | tee "${LOG_DIR}/${method}_seed${seed}_aime2026.log"
   done
 done
