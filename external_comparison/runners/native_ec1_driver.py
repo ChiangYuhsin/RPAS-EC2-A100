@@ -290,6 +290,69 @@ def _install_maas_actions_compat(workspace: Path) -> str:
     return "staged actions registry limited to HumanEval action primitives"
 
 
+def _install_maas_public_test_compat(workspace: Path) -> str:
+    """Bound MaAS's public-test operator without changing its test policy.
+
+    The released HumanEval ``Test.exec_code`` executes model-provided code in
+    the benchmark's main process. A non-terminating candidate then freezes the
+    entire controller-training run. Keep the same frozen assertions and the
+    same pass/fail feedback contract, but run each candidate in an isolated
+    Python interpreter with the common 10-second EC-1 public-test budget.
+    """
+    replacement = '''    def exec_code(self, solution, entry_point):
+        import subprocess
+        import sys
+        import tempfile
+
+        test_cases = extract_test_cases_from_jsonl(entry_point, dataset="HumanEval")
+        if not test_cases:
+            return {"exec_fail_case": f"No public test cases for {entry_point}"}
+        assertions = "\\n".join(f"    {case}" for case in test_cases)
+        program = "\\n".join((
+            str(solution),
+            "",
+            "def check(candidate):",
+            assertions,
+            "",
+            f"check({entry_point})",
+            "",
+        ))
+        try:
+            with tempfile.TemporaryDirectory(prefix="maas_ec1_public_test_") as directory:
+                script = os.path.join(directory, "candidate.py")
+                with open(script, "w", encoding="utf-8") as handle:
+                    handle.write(program)
+                completed = subprocess.run(
+                    [sys.executable, "-I", script], capture_output=True, text=True,
+                    timeout=10, check=False,
+                )
+        except subprocess.TimeoutExpired:
+            return {"exec_fail_case": "Public-test execution timed out after 10 seconds."}
+        if completed.returncode == 0:
+            return "no error"
+        feedback = (completed.stderr or completed.stdout or "public-test assertion failed").strip()[-1200:]
+        return {"exec_fail_case": feedback}
+'''
+    for split in ("train", "test"):
+        template = (
+            workspace
+            / "maas"
+            / "ext"
+            / "maas"
+            / "scripts"
+            / "optimized"
+            / "HumanEval"
+            / split
+            / "template"
+            / "operator.py"
+        )
+        source = template.read_text(encoding="utf-8")
+        start = source.index("    def exec_code(self, solution, entry_point):")
+        end = source.index("\n    async def __call__(", start)
+        template.write_text(source[:start] + replacement + source[end:], encoding="utf-8")
+    return "MaAS HumanEval Test.exec_code isolated in a 10-second subprocess using the frozen public fixture"
+
+
 def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     workspace = stage_checkout(
         source, run_root, "maas", args.seed, replace=args.replace_workspace, require_clean_git=True
@@ -307,6 +370,7 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     _install_maas_optional_encoding_compat()
     provider_patch = _install_maas_provider_compat(workspace)
     actions_patch = _install_maas_actions_compat(workspace)
+    public_test_patch = _install_maas_public_test_compat(workspace)
     from maas.configs.models_config import ModelsConfig
     from maas.ext.maas.scripts.optimizer import Optimizer
     from maas.ext.maas.scripts.optimizer_utils.data_utils import DataUtils
@@ -370,7 +434,7 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     test_root = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "test" / "round_1"
     outputs = _csv_rows(test_root, test_rows)
     return {
-        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token; " + provider_patch + "; " + actions_patch},
+        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token; " + provider_patch + "; " + actions_patch + "; " + public_test_patch},
         "search_rows": [{"round": 1, "checkpoint": str(checkpoint)}],
         "test_rows": outputs,
         "telemetry_path": str(telemetry),

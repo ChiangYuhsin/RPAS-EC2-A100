@@ -199,17 +199,28 @@ def main() -> None:
     async def batch_worker() -> None:
         while True:
             first = await request_queue.get()
+            # A client can time out while its request waits in the queue.
+            # Do not spend a full generation on work whose response can no
+            # longer be observed. This matters for upstream search workflows
+            # that intentionally abandon over-budget candidates.
+            if first.future.done() or first.future.cancelled():
+                continue
             pending = [first]
             await asyncio.sleep(max(0.0, args.batch_wait_ms) / 1000.0)
             while len(pending) < args.max_batch_size:
                 try:
-                    pending.append(request_queue.get_nowait())
+                    candidate = request_queue.get_nowait()
                 except asyncio.QueueEmpty:
                     break
+                if not candidate.future.done() and not candidate.future.cancelled():
+                    pending.append(candidate)
             groups: dict[tuple[int, bool, float], list[PendingRequest]] = {}
             for item in pending:
                 groups.setdefault(request_generation_key(item.request), []).append(item)
             for items in groups.values():
+                items = [item for item in items if not item.future.done() and not item.future.cancelled()]
+                if not items:
+                    continue
                 try:
                     responses = await asyncio.to_thread(generate_batch, items)
                 except Exception as exc:  # Surface model/runtime failures to every affected caller.

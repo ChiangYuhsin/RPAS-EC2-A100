@@ -28,6 +28,24 @@ def _gpu_env() -> dict[str, str]:
     return child
 
 
+def _selected_endpoint() -> str:
+    """Return the sole resident service allowed for the selected EC-1 GPU."""
+    gpu = os.environ.get("RPAS_EC1_GPU", "").strip()
+    endpoints = {
+        "4": "http://127.0.0.1:29500/v1",
+        "5": "http://127.0.0.1:29501/v1",
+    }
+    expected = endpoints.get(gpu)
+    if expected is None:
+        raise RuntimeError("EC-1 endpoint selection requires RPAS_EC1_GPU=4 or 5")
+    configured = os.environ.get("RPAS_EXTERNAL_API_BASE", "").strip()
+    if configured and configured != expected:
+        raise RuntimeError(
+            f"refusing endpoint mismatch for GPU {gpu}: {configured} != {expected}"
+        )
+    return expected
+
+
 def _run_driver(args, output: Path) -> dict:
     public = getattr(args, "public_test_path", None) or os.environ.get("RPAS_EC1_PUBLIC_TEST_PATH", "")
     if not public:
@@ -40,7 +58,7 @@ def _run_driver(args, output: Path) -> dict:
         "--method", "aflow", "--source-root", str(_root()), "--dataset-path", str(args.dataset_path),
         "--public-test-path", str(public), "--output-dir", str(output), "--seed", str(args.seed),
         "--data-seed", str(args.data_seed), "--model", os.environ.get("RPAS_EXTERNAL_MODEL", "Qwen/Qwen3.5-9B"),
-        "--base-url", os.environ.get("RPAS_EXTERNAL_API_BASE", "http://127.0.0.1:29500/v1"),
+        "--base-url", _selected_endpoint(),
         "--api-key", os.environ.get("RPAS_EXTERNAL_API_KEY", "EMPTY"),
         "--max-tokens", os.environ.get("RPAS_HUMANEVAL_MAX_TOKENS", "1024"),
         "--aflow-max-rounds", os.environ.get("RPAS_AFLOW_MAX_ROUNDS", "3"),
@@ -68,7 +86,7 @@ def run_humaneval(args) -> None:
         "run_id": f"humaneval-aflow-seed-{args.seed}", "method": "aflow", "dataset": "humaneval", "seed": args.seed,
         "formal_result": getattr(args, "run_kind", "pilot") == "formal",
         "run_kind": getattr(args, "run_kind", "pilot"), "model": os.environ.get("RPAS_EXTERNAL_MODEL", "Qwen/Qwen3.5-9B"),
-        "api_base": os.environ.get("RPAS_EXTERNAL_API_BASE", "http://127.0.0.1:29500/v1"),
+        "api_base": _selected_endpoint(),
         "gpu": os.environ["RPAS_EC1_GPU"], **result["manifest"],
         "search_calls": sum(row["phase"] == "search" for row in raw_calls),
         "search_tokens": sum(int(row["total_tokens"]) for row in raw_calls if row["phase"] == "search"),
