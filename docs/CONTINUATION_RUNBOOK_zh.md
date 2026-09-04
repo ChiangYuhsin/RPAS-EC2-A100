@@ -9,7 +9,7 @@
 | 项目 | 状态 | 可否作为论文主表 |
 | --- | --- | --- |
 | EC-1 AFlow seed 0 | 原生 `Optimizer.optimize("Graph")` 搜索与 held-out pilot 已完成；工作流历史已交接 | 否，仍是 pilot |
-| EC-1 MaAS seed 0 | 原生 fresh controller 训练完成；controller 已交接；held-out test 可恢复 | 否，仍是 pilot |
+| EC-1 MaAS seed 0 | 原生 fresh controller training 与 official held-out test 已完成；完整 pilot 结果已交接 | 否，仍是 pilot |
 | EC-1 RPAS seed 0 | 原机器仍在执行；不要从公开仓库假定已有完整状态 | 否 |
 | EC-2 legacy MMLU | 仅开发/排错结果 | 否 |
 | EC-2 v2 | 代码、协议和门禁已准备；尚未开始正式运行 | 否 |
@@ -119,8 +119,10 @@ fixture。
 
 ### MaAS
 
-MaAS seed-0 的官方训练已经产出 compact controller。若原机进程未完成，可在
-GPU 5 上仅继续 official held-out test，不重跑 `Optimizer.optimize("Graph")`：
+MaAS seed-0 的官方训练和 held-out pilot 已完成，结果位于
+`handoff_progress/ec1_seed_0/maas/completed_pilot/`，无需在新机器补跑。保留的
+controller 仅用于未来发生中断时恢复 official held-out test，不重跑
+`Optimizer.optimize("Graph")`：
 
 ```bash
 export RPAS_EXTERNAL_MODEL=Qwen/Qwen3.5-9B
