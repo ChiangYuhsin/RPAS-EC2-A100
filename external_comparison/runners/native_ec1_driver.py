@@ -79,8 +79,11 @@ def _install_aflow_runtime_compatibility() -> str:
     """Apply bounded execution-only fixes to the staged AFlow checkout.
 
     AFlow's public HumanEval entry point explicitly passes its historical
-    concurrency of 50 to the benchmark.  EC-1 uses one shared backend with a
-    four-request bound, so the adapter clamps that value without changing the
+    concurrency of 50 to the benchmark.  EC-1 uses one shared backbone whose
+    workflows may make several serial model calls.  Run one workflow at a
+    time so each still receives AFlow's unchanged 60-second whole-workflow
+    budget; higher task concurrency turns a valid four-call workflow into an
+    artificial timeout through backend queueing.  This does not change the
     optimizer, candidate-generation, or evaluator logic.  The daemon worker
     preserves AFlow's 15-second evaluator timeout while allowing a timed-out
     generated program to stop holding the process open.
@@ -91,7 +94,7 @@ def _install_aflow_runtime_compatibility() -> str:
     original_evaluate_all = BaseBenchmark.evaluate_all_problems
 
     async def bounded_evaluate_all(self, data, agent, max_concurrent_tasks=50):
-        return await original_evaluate_all(self, data, agent, min(int(max_concurrent_tasks), 4))
+        return await original_evaluate_all(self, data, agent, min(int(max_concurrent_tasks), 1))
 
     def daemon_timeout(self, func, call_args, timeout):
         result = []
@@ -117,7 +120,7 @@ def _install_aflow_runtime_compatibility() -> str:
 
     BaseBenchmark.evaluate_all_problems = bounded_evaluate_all
     HumanEvalBenchmark.run_with_timeout = daemon_timeout
-    return "aflow_runtime: max_concurrent_tasks<=4; HumanEval timeout worker daemonized"
+    return "aflow_runtime: max_concurrent_tasks=1; HumanEval timeout worker daemonized"
 
 
 def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
