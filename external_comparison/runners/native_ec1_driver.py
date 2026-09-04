@@ -8,6 +8,7 @@ seed state from AFlow and MaAS cannot contaminate one another.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import csv
 import json
 import os
@@ -200,8 +201,16 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
     test_root = workspace / "workspace" / "HumanEval" / "workflows_test"
     shutil.rmtree(test_root, ignore_errors=True)
     shutil.copytree(workspace / "workspace" / "HumanEval" / "workflows" / f"round_{selected_round}", test_root / "round_1")
+    # The source round contains its validation CSV.  Never let that artifact
+    # be mistaken for held-out output if the upstream test coroutine fails to
+    # write a fresh file.
+    for stale_csv in (test_root / "round_1").glob("*.csv"):
+        stale_csv.unlink()
     os.environ["RPAS_EC1_PHASE"] = "test"
-    optimizer.test()
+    # AFlow exposes test() as an async coroutine while optimize("Test") is
+    # the synchronous wrapper.  The native driver is synchronous here, so run
+    # the official coroutine explicitly and fail loudly on any test error.
+    asyncio.run(optimizer.test())
     test_rows = [json.loads(line) for line in Path(data["test_path"]).read_text(encoding="utf-8").splitlines() if line.strip()]
     outputs = _csv_rows(test_root / "round_1", test_rows)
     return {
