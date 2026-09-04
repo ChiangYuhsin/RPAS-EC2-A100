@@ -9,26 +9,22 @@ from __future__ import annotations
 
 import argparse
 import csv
-from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import random
 import re
-import hashlib
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from external_comparison.common.manifest import sha256_json
-from external_comparison.common.schema import CallRecord
 from experiments.phase2_wan_agent_search import (
     NetworkProfile,
     RolloutTrace,
-    load_models,
-    load_network_profiles,
-    load_sites,
-    configure_site_penalties,
     run_single_architecture,
 )
+from external_comparison.common.manifest import sha256_json
+from external_comparison.common.schema import CallRecord
 
 MMLU_SUBJECTS: tuple[str, ...] = (
     "abstract_algebra", "anatomy", "astronomy", "business_ethics", "clinical_knowledge",
@@ -133,16 +129,24 @@ def build_mmlu_manifest(
     *,
     data_seed: int = 2026,
     search_per_subject: int = 5,
+    select_per_subject: int = 5,
     test_per_subject: int = 10,
 ) -> dict[str, Any]:
     search = load_mmlu_split(data_dir, "dev", per_subject=search_per_subject, seed=data_seed)
+    select = load_mmlu_split(data_dir, "val", per_subject=select_per_subject, seed=data_seed)
     test = load_mmlu_split(data_dir, "test", per_subject=test_per_subject, seed=data_seed)
     search_ids = [item.example_id for item in search]
+    select_ids = [item.example_id for item in select]
     test_ids = [item.example_id for item in test]
-    if set(search_ids) & set(test_ids):
-        raise ValueError("MMLU search and test IDs overlap")
+    overlaps = {
+        "search_select": set(search_ids) & set(select_ids),
+        "search_test": set(search_ids) & set(test_ids),
+        "select_test": set(select_ids) & set(test_ids),
+    }
+    if any(overlaps.values()):
+        raise ValueError(f"MMLU split IDs overlap: {overlaps}")
     source_files = {}
-    for split in ("dev", "test"):
+    for split in ("dev", "val", "test"):
         for subject in MMLU_SUBJECTS:
             path = _source_path(Path(data_dir), subject, split)
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -152,9 +156,12 @@ def build_mmlu_manifest(
         "data_seed": data_seed,
         "subjects": list(MMLU_SUBJECTS),
         "search": {"source_split": "dev", "per_subject": search_per_subject, "count": len(search), "ids": search_ids},
+        "select": {"source_split": "val", "per_subject": select_per_subject, "count": len(select), "ids": select_ids},
         "test": {"source_split": "test", "per_subject": test_per_subject, "count": len(test), "ids": test_ids},
         "source_files": source_files,
-        "split_manifest_sha256": sha256_json({"search": search_ids, "test": test_ids}),
+        "split_manifest_sha256": sha256_json(
+            {"search": search_ids, "select": select_ids, "test": test_ids}
+        ),
     }
 
 
@@ -261,9 +268,16 @@ def main() -> int:
     parser.add_argument("--output", default="outputs/external_comparison/mmlu/split_manifest.json")
     parser.add_argument("--data-seed", type=int, default=2026)
     parser.add_argument("--search-per-subject", type=int, default=5)
+    parser.add_argument("--select-per-subject", type=int, default=5)
     parser.add_argument("--test-per-subject", type=int, default=10)
     args = parser.parse_args()
-    manifest = build_mmlu_manifest(args.data_dir, data_seed=args.data_seed, search_per_subject=args.search_per_subject, test_per_subject=args.test_per_subject)
+    manifest = build_mmlu_manifest(
+        args.data_dir,
+        data_seed=args.data_seed,
+        search_per_subject=args.search_per_subject,
+        select_per_subject=args.select_per_subject,
+        test_per_subject=args.test_per_subject,
+    )
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

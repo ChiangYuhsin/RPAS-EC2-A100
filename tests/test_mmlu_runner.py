@@ -71,7 +71,7 @@ def test_mmlu_loader_rejects_malformed_rows(tmp_path: Path) -> None:
 
 
 def test_mmlu_manifest_is_deterministic(tmp_path: Path) -> None:
-    for split in ("dev", "test"):
+    for split in ("dev", "val", "test"):
         (tmp_path / split).mkdir()
         for subject in MMLU_SUBJECTS:
             path = tmp_path / split / f"{subject}_{split}.csv"
@@ -79,10 +79,11 @@ def test_mmlu_manifest_is_deterministic(tmp_path: Path) -> None:
                 writer = csv.writer(handle)
                 for index in range(3):
                     writer.writerow([f"q{index}", "a", "b", "c", "d", "A"])
-    first = build_mmlu_manifest(tmp_path, search_per_subject=2, test_per_subject=2)
-    second = build_mmlu_manifest(tmp_path, search_per_subject=2, test_per_subject=2)
+    first = build_mmlu_manifest(tmp_path, search_per_subject=2, select_per_subject=2, test_per_subject=2)
+    second = build_mmlu_manifest(tmp_path, search_per_subject=2, select_per_subject=2, test_per_subject=2)
     assert first == second
     assert first["search"]["count"] == 2 * len(MMLU_SUBJECTS)
+    assert first["select"]["count"] == 2 * len(MMLU_SUBJECTS)
     assert first["test"]["count"] == 2 * len(MMLU_SUBJECTS)
 
 

@@ -194,10 +194,13 @@ def write_native_result(
         if prediction_rows
         else None
     )
+    test_calls = [row for row in calls if row.get("split") == "test"]
     summary = {
         "method": manifest["method"], "dataset": manifest["dataset"], "score": sum(bool(row.get("correct", row.get("passed", False))) for row in rows) / len(rows) if rows else 0.0,
         "num_examples": len(rows), "valid_answer_rate": valid_answer_rate,
-        "inference_calls": len(calls), "inference_tokens": sum(int(row.get("total_tokens", 0)) for row in calls),
+        # Search/selection records are retained in calls.jsonl, but never
+        # silently folded into held-out inference cost.
+        "inference_calls": len(test_calls), "inference_tokens": sum(int(row.get("total_tokens", 0)) for row in test_calls),
         "model_errors": sum(bool(row.get("error")) for row in calls),
         "maxed_calls": sum(row.get("finish_reason") == "length" for row in calls),
         "search_calls": int(manifest.get("search_calls", 0)), "search_tokens": int(manifest.get("search_tokens", 0)),

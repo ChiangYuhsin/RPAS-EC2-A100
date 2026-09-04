@@ -3039,7 +3039,7 @@ def build_llm_reflection_plan(
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False, indent=2)},
             ],
-            temperature=0.2,
+            temperature=float(reflection_config.get("temperature", 0.2)),
             max_tokens=attempt_max_tokens,
         )
         call_traces.append(asdict(call_trace))

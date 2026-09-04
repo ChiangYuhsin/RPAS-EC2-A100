@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from external_comparison.adapters.registry import native_adapter_status
 from external_comparison.common.protocol import (
     CONTROLLED_SEARCH_METHODS,
     DATASETS,
@@ -14,7 +15,6 @@ from external_comparison.common.protocol import (
     EC2_EXTERNAL_METHODS,
     SEARCH_SEEDS,
 )
-from external_comparison.adapters.registry import native_adapter_status
 
 
 def _contains_absolute_path(value: Any) -> bool:
@@ -44,6 +44,22 @@ def validate_config(path: str | Path) -> list[str]:
     elif config_path.name == "ec2_mmlu.json":
         if tuple(payload.get("methods", [])) != EC2_EXTERNAL_METHODS:
             errors.append(f"methods must be {list(EC2_EXTERNAL_METHODS)}")
+    elif config_path.name == "ec2_mmlu_v2.json":
+        expected_methods = ("single_agent", "full_connected", "chain", "gdesigner", "rpas_comm")
+        if payload.get("protocol_version") != "ec2-mmlu-communication-v2":
+            errors.append("EC-2 v2 has an unexpected protocol_version")
+        if tuple(payload.get("methods", [])) != expected_methods:
+            errors.append(f"EC-2 v2 methods must be {list(expected_methods)}")
+        shared = payload.get("shared_conditions", {})
+        if shared.get("agent_count") != 6 or len(shared.get("roles", [])) != 6:
+            errors.append("EC-2 v2 must freeze the official six-agent role pool")
+        if shared.get("compression") != "disabled_for_all_methods":
+            errors.append("EC-2 v2 must disable compression for every method")
+        sources = payload.get("splits", {})
+        if [sources.get(name, {}).get("source") for name in ("search", "select", "test")] != ["dev", "val", "test"]:
+            errors.append("EC-2 v2 must use dev/search, val/select, and test/held-out splits")
+        if payload.get("gdesigner", {}).get("official_commit") != "a6efcfa3b40bb4d9cbf46f883a95d62020bd8251":
+            errors.append("EC-2 v2 must pin G-Designer a6efcfa")
     else:
         dataset = payload.get("dataset")
         if dataset not in DATASETS:

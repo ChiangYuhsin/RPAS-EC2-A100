@@ -1,5 +1,5 @@
 {
-  "experiment": "EC-2",
+  "experiment": "EC-2-legacy-debug-only",
   "dataset": "mmlu",
   "role": "native_external_communication_comparison",
   "methods": ["vanilla", "rpas_no_selection", "gdesigner", "rpas"],
@@ -20,5 +20,5 @@
   },
   "metrics": ["accuracy", "active_edges", "messages_per_query", "inter_agent_tokens", "calls", "total_tokens", "latency_ms"],
   "native_adapter_policy": "formal_runs_require_native_gdesigner_adapter_and_frozen_source_manifest",
-  "status": "controlled_mmlu_57x10_ablation_and_external_comparison"
+  "status": "legacy_development_debugging_only__not_eligible_for_ec2_v2_main_table"
 }

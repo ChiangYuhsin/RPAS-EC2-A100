@@ -21,7 +21,7 @@ uv run python -m external_comparison.runners.humaneval \
 共同空间方法名是 `random_as`、`aflow_style`、`adas_style`、`rpas_quality` 和 `rpas`。
 这些方法是受控共域比较策略，不是对应论文官方代码的完整复现，不能写成 AFlow、MaAS 或 G-Designer。
 
-正式外部实验配置是 `configs/ec1_humaneval.json` 和 `configs/ec2_mmlu.json`。
+正式外部实验配置是 `configs/ec1_humaneval.json` 和 `configs/ec2_mmlu_v2.json`。
 
 EC-1 启动前必须先运行无模型调用的门禁：
 
@@ -76,6 +76,21 @@ bash scripts/run_ec1_native.sh aflow 4 \
 仓库中已有的 EC-2 结果是 `MMLU-57x10 controlled subset`：57 个 subject、每个 subject 10 道测试题，搜索集每 subject 5 题。它们统一保留 `formal_result: false`，在 G1-G9 门禁完成前不能写成 formal result 或完整 MMLU。
 
 RPAS 本次运行是 9 个预定义候选架构上的 controlled candidate selection，`RPAS_MMLU_NEW_CANDIDATES=0`；这不是完整 reflective mutation search。G-Designer 的 `search_calls=0` 表示没有单独 instrumented 的搜索阶段，不表示没有额外推理调用。论文表格必须同时报告 test inference calls/tokens、search calls/tokens 和 total calls/tokens。
+
+这些 legacy outputs 仅用于开发和排错，不能进入论文主表。主表唯一允许的实现是
+`runners/ec2_v2.py`，协议见 `../docs/EC2_V2_PROTOCOL.md`。v2 强制固定六个官方
+MMLU roles、同一 FinalRefer、同一 Qwen3.5-9B endpoint、temperature 0、256-token cap、
+一轮通信、无压缩，以及 `dev -> search`、`val -> select`、`test -> held-out` 三段切分。
+它直接调用官方 G-Designer 的 10-iteration training loop，并拒绝未训练 GCN；RPAS-Comm
+必须产生 LLM reflection、typed topology mutation 和新 candidate。v2 aggregator 会拒绝
+legacy manifest，并将 worker communication 与 FinalRefer 输入 token 分开报告。
+
+```bash
+RPAS_CUDA_VISIBLE_DEVICES=4 bash experiments/run_ec2_mmlu_v2_a100.sh pilot
+```
+
+脚本只接受物理 GPU `4` 或 `5`。通过 pilot 的 fidelity review 后才可运行 `formal`；无三
+seed、同一 split hash 与 formal gate 的结果仍不能称为论文正式结果。
 
 可从每个 seed artifact 生成主表：
 
