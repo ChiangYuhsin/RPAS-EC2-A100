@@ -142,37 +142,30 @@ def _run_fixed_mmlu(args) -> None:
 
 
 def run_humaneval(args) -> None:
-    if getattr(args, "run_kind", "pilot") == "formal":
-        raise RuntimeError(
-            "EC-1 formal RPAS is blocked: the native phase-2 code-agent path has not yet "
-            "been given the same AFlow-derived public-test tool access as AFlow and MaAS."
-        )
-    from external_comparison.runners.humaneval import run_experiment
+    from external_comparison.runners.native_rpas_ec1 import run
 
-    repo_root = Path(args.repo_root).resolve()
-    result = run_experiment(
-        repo_root=repo_root,
-        dataset_path=Path(args.dataset_path).resolve(),
-        model_config_path=repo_root / "experiments" / "phase2_wan_agent_config_qwen35_9b_homogeneous.json",
-        output_dir=Path(args.output_dir).resolve(),
-        method="rpas",
-        seed=args.seed,
-        search_size=33,
-        select_size=0,
-        test_size=131,
-        dry_run=False,
+    output_dir = Path(args.output_dir) / "rpas" / f"seed_{args.seed}"
+    result = run(args)
+    manifest = {
+        "run_id": f"humaneval-rpas-seed-{args.seed}",
+        "method": "rpas",
+        "dataset": "humaneval",
+        "seed": args.seed,
+        **result["manifest"],
+    }
+    write_native_result(
+        output_dir,
+        manifest,
+        result["test_rows"],
+        result["calls"],
+        selected=result["selected"],
+        search_rows=result["search_rows"],
     )
-    run_dir = Path(result["run_dir"])
-    manifest_path = run_dir / "run_manifest.json"
-    if manifest_path.exists():
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest.update({
-            "implementation_status": "controlled_pilot_repository_phase2",
-            "native_search": "phase2_executor_status_not_formal",
-            "formal_result": False,
-            "formal_result_reason": "repository-level formal gates are not complete",
-        })
-        manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    for name in ("proposal_rows", "reflections", "tool_events"):
+        (output_dir / f"{name}.jsonl").write_text(
+            "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in result[name]),
+            encoding="utf-8",
+        )
 
 
 def run_mmlu(args) -> None:
