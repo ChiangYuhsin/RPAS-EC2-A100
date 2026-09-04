@@ -143,10 +143,12 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
     # Optimizer.test() path. A valid EC-1 run must train this fresh controller
     # with Optimizer.optimize("Graph") and then load the resulting
     # HumanEval_controller_sample*.pth checkpoint before testing.
-    if os.environ.get("RPAS_MAAS_FRESH_TRAINED", "0") != "1":
+    checkpoint = os.environ.get("RPAS_MAAS_CHECKPOINT", "").strip()
+    if os.environ.get("RPAS_MAAS_FRESH_TRAINED", "0") != "1" or not checkpoint or not Path(checkpoint).is_file():
         raise RuntimeError(
             "MaAS EC-1 requires the official fresh train -> checkpoint -> test "
-            "workflow; refusing to evaluate an untrained random controller"
+            "workflow and an existing checkpoint (set RPAS_MAAS_CHECKPOINT); "
+            "refusing to evaluate an untrained random controller"
         )
     encoded_names = controller_module.sentence_encoder.model.encode(operator_names)
     embeddings = torch.as_tensor(encoded_names, dtype=torch.float32)

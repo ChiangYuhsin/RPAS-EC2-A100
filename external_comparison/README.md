@@ -31,7 +31,7 @@ python -m external_comparison.runners.ec1_preflight \
   --public-test-path /path/to/humaneval_public_test.jsonl
 ```
 
-门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。AFlow 还必须设置 `RPAS_AFLOW_FRESH_SEARCH=1`，MaAS 必须设置 `RPAS_MAAS_FRESH_TRAINED=1`；否则程序会拒绝生成正式结果。
+门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。正式运行还必须提供 AFlow 官方 Optimizer 搜索产物（`RPAS_AFLOW_SEARCH_ARTIFACT`）和 MaAS fresh-train 产生的 checkpoint（`RPAS_MAAS_FRESH_TRAINED=1`、`RPAS_MAAS_CHECKPOINT`）；仅设置环境变量不能绕过门禁。
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
 

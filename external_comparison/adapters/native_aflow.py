@@ -57,10 +57,12 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
     root = _root()
     if not root.exists():
         raise FileNotFoundError(f"AFlow repository not found: {root}")
-    if os.environ.get("RPAS_AFLOW_FRESH_SEARCH", "0") != "1":
+    artifact = os.environ.get("RPAS_AFLOW_SEARCH_ARTIFACT", "").strip()
+    if not artifact or not Path(artifact).exists():
         raise RuntimeError(
-            "AFlow EC-1 requires the official Optimizer search stage; refusing "
-            "to report the round_1 seed workflow as a formal result"
+            "AFlow EC-1 requires a materialized official Optimizer search "
+            "artifact (set RPAS_AFLOW_SEARCH_ARTIFACT); refusing to report "
+            "the round_1 seed workflow as a formal result"
         )
     os.chdir(root)
     sys.path.insert(0, str(root))
