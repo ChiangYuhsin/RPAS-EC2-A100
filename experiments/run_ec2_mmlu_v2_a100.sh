@@ -19,14 +19,14 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${RPAS_REPO_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 UV_BIN="${UV_BIN:-uv}"
-VLLM_BIN="${RPAS_VLLM_BIN:-vllm}"
+PYTHON_BIN="${RPAS_PYTHON_BIN:-${REPO_ROOT}/.rpas-run/bin/python}"
 MODEL_PATH="${RPAS_MODEL_PATH:?set RPAS_MODEL_PATH to the local Qwen3.5-9B directory}"
 DATA_DIR="${RPAS_MMLU_DATA_DIR:?set RPAS_MMLU_DATA_DIR to frozen MMLU data}"
 GDESIGNER_ROOT="${RPAS_GDESIGNER_ROOT:?set RPAS_GDESIGNER_ROOT to the pinned G-Designer checkout}"
 EMBEDDING_MODEL="${RPAS_MAAS_EMBEDDING_MODEL:?set RPAS_MAAS_EMBEDDING_MODEL to local all-MiniLM-L6-v2 files}"
 OUTPUT_DIR="${RPAS_OUTPUT_DIR:-${REPO_ROOT}/outputs/external_comparison/ec2_mmlu_v2}"
-VLLM_PORT="${RPAS_VLLM_PORT:-29500}"
-VLLM_LOG="${RPAS_VLLM_LOG:-${REPO_ROOT}/logs/vllm-ec2-v2-gpu${CUDA_VISIBLE_DEVICES}.log}"
+SERVICE_PORT="${RPAS_SERVICE_PORT:-29500}"
+SERVICE_LOG="${RPAS_SERVICE_LOG:-${REPO_ROOT}/logs/transformers-ec2-v2-gpu${CUDA_VISIBLE_DEVICES}.log}"
 CONFIG_PATH="${RPAS_MODEL_CONFIG:-${REPO_ROOT}/experiments/phase2_mmlu_qwen35_9b.json}"
 METHODS=( ${RPAS_EC2_V2_METHODS:-single_agent full_connected chain gdesigner rpas_comm} )
 SEEDS=( ${RPAS_EC2_V2_SEEDS:-0 1 2} )
@@ -36,12 +36,16 @@ for required_dir in "${REPO_ROOT}" "${MODEL_PATH}" "${DATA_DIR}" "${GDESIGNER_RO
 done
 [[ -f "${CONFIG_PATH}" ]] || { echo "model config is missing: ${CONFIG_PATH}" >&2; exit 2; }
 command -v "${UV_BIN}" >/dev/null
-command -v "${VLLM_BIN}" >/dev/null
+[[ -x "${PYTHON_BIN}" ]] || { echo "Python runtime is missing: ${PYTHON_BIN}" >&2; exit 2; }
+[[ -f "${REPO_ROOT}/scripts/serve_transformers_qwen35_openai.py" ]] || {
+  echo "Transformers OpenAI service is missing" >&2
+  exit 2
+}
 command -v curl >/dev/null
 
 cd "${REPO_ROOT}"
 export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
-export RPAS_EXTERNAL_API_BASE="http://127.0.0.1:${VLLM_PORT}/v1"
+export RPAS_EXTERNAL_API_BASE="http://127.0.0.1:${SERVICE_PORT}/v1"
 export RPAS_EXTERNAL_API_KEY="${RPAS_EXTERNAL_API_KEY:-EMPTY}"
 export RPAS_EXTERNAL_MODEL="Qwen/Qwen3.5-9B"
 export RPAS_MODEL_CONFIG="${CONFIG_PATH}"
@@ -57,29 +61,33 @@ export GEPA_PHASE2_PROMPT_MODE=deliberate
 "${UV_BIN}" run python -m external_comparison.runners.validate_protocol \
   --config-dir external_comparison/configs
 
-mkdir -p "${OUTPUT_DIR}" "$(dirname "${VLLM_LOG}")"
-CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${UV_BIN}" run -- "${VLLM_BIN}" serve "${MODEL_PATH}" \
-  --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${VLLM_PORT}" \
-  --tensor-parallel-size 1 --max-model-len 32768 --reasoning-parser qwen3 --language-model-only \
-  >"${VLLM_LOG}" 2>&1 &
-VLLM_PID=$!
+mkdir -p "${OUTPUT_DIR}" "$(dirname "${SERVICE_LOG}")"
+# vLLM cannot execute Qwen3_5ForConditionalGeneration in this environment.
+# This service uses the official Transformers implementation and binds exactly
+# the selected physical GPU through CUDA_VISIBLE_DEVICES.
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${PYTHON_BIN}" \
+  scripts/serve_transformers_qwen35_openai.py --model "${MODEL_PATH}" \
+  --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${SERVICE_PORT}" \
+  --max-new-tokens 256 --max-batch-size 4 --batch-wait-ms 25 --stop-string '<<RPAS_END>>' \
+  >"${SERVICE_LOG}" 2>&1 &
+SERVICE_PID=$!
 
 cleanup() {
-  kill "${VLLM_PID}" 2>/dev/null || true
+  kill "${SERVICE_PID}" 2>/dev/null || true
 }
 trap cleanup EXIT
 
 for _ in $(seq 1 180); do
-  if curl -sf "http://127.0.0.1:${VLLM_PORT}/health" >/dev/null; then
+  if curl -sf "http://127.0.0.1:${SERVICE_PORT}/health" >/dev/null; then
     break
   fi
-  if ! kill -0 "${VLLM_PID}" 2>/dev/null; then
-    tail -n 120 "${VLLM_LOG}" >&2 || true
+  if ! kill -0 "${SERVICE_PID}" 2>/dev/null; then
+    tail -n 120 "${SERVICE_LOG}" >&2 || true
     exit 1
   fi
   sleep 5
 done
-curl -sf "http://127.0.0.1:${VLLM_PORT}/v1/models" >/dev/null
+curl -sf "http://127.0.0.1:${SERVICE_PORT}/v1/models" >/dev/null
 
 if [[ "${STAGE}" == "pilot" ]]; then
   METHODS=(gdesigner rpas_comm)
