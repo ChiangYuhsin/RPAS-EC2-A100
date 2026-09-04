@@ -35,7 +35,7 @@ def _rows(path: Path) -> list[dict]:
     return values
 
 
-def run_preflight(dataset_path: Path, public_test_path: Path, config_path: Path) -> dict:
+def run_preflight(dataset_path: Path, public_test_path: Path, config_path: Path, *, validate_path: Path | None = None, test_path: Path | None = None) -> dict:
     errors: list[str] = []
     if not dataset_path.is_file():
         errors.append(f"missing HumanEval dataset: {dataset_path}")
@@ -52,6 +52,9 @@ def run_preflight(dataset_path: Path, public_test_path: Path, config_path: Path)
                 break
     if not public_test_path.is_file():
         errors.append(f"missing canonical HumanEval public-test file: {public_test_path}")
+    for label, path in (("AFlow validate", validate_path), ("AFlow test", test_path)):
+        if path is not None and not path.is_file():
+            errors.append(f"missing {label} fixture: {path}")
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.is_file() else {}
     if config.get("split_sizes") != {"search": 33, "select": 0, "test": 131}:
         errors.append("EC-1 config split_sizes must be search=33, select=0, test=131")
@@ -68,6 +71,7 @@ def run_preflight(dataset_path: Path, public_test_path: Path, config_path: Path)
         "formal_result": False,
         "dataset": {"path": str(dataset_path), "rows": len(dataset_rows), "sha256": _sha256(dataset_path) if dataset_path.is_file() else None},
         "public_test": {"path": str(public_test_path), "sha256": _sha256(public_test_path) if public_test_path.is_file() else None},
+        "aflow_fixtures": {label: {"path": str(path), "sha256": _sha256(path) if path and path.is_file() else None} for label, path in (("validate", validate_path), ("test", test_path))},
         "split_sizes": config.get("split_sizes"),
         "methods": {method: native_adapter_status(method) for method in ("aflow", "maas", "rpas")},
         "errors": errors,
@@ -81,9 +85,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="EC-1 formal-run preflight; never contacts an inference server")
     parser.add_argument("--dataset-path", required=True)
     parser.add_argument("--public-test-path", required=True)
+    parser.add_argument("--aflow-validate-path")
+    parser.add_argument("--aflow-test-path")
     parser.add_argument("--config", default="external_comparison/configs/ec1_humaneval.json")
     args = parser.parse_args()
-    print(json.dumps(run_preflight(Path(args.dataset_path), Path(args.public_test_path), Path(args.config)), ensure_ascii=False, indent=2))
+    print(json.dumps(run_preflight(Path(args.dataset_path), Path(args.public_test_path), Path(args.config), validate_path=Path(args.aflow_validate_path) if args.aflow_validate_path else None, test_path=Path(args.aflow_test_path) if args.aflow_test_path else None), ensure_ascii=False, indent=2))
     return 0
 
 

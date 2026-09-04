@@ -31,6 +31,16 @@ python -m external_comparison.runners.ec1_preflight \
   --public-test-path /path/to/humaneval_public_test.jsonl
 ```
 
+推荐先在本地准备四文件 provenance bundle（数据不会被 Git 跟踪）：
+
+```bash
+uv run python scripts/fetch_ec1_humaneval_data.py --output-dir data/ec1_humaneval
+```
+
+然后将 `official/humaneval.jsonl`、`aflow/humaneval_validate.jsonl`、
+`aflow/humaneval_test.jsonl` 和 `aflow/humaneval_public_test.jsonl` 的路径传给
+preflight；脚本会记录每个实际文件的 SHA-256。
+
 门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。正式运行还必须提供 AFlow 官方 Optimizer 搜索产物（`RPAS_AFLOW_SEARCH_ARTIFACT`）和 MaAS fresh-train 产生的 checkpoint（`RPAS_MAAS_FRESH_TRAINED=1`、`RPAS_MAAS_CHECKPOINT`）；仅设置环境变量不能绕过门禁。
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
