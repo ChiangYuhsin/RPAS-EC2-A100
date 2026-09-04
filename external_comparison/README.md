@@ -13,7 +13,7 @@ runner 统一生成调用、通信、候选、选择和 provenance artifact，�
 示例（只做 split/manifest 检查，不调用模型）：
 
 ```bash
-python -m external_comparison.runners.humaneval \
+uv run python -m external_comparison.runners.humaneval \
   --dataset-path /path/to/HumanEval.json \
   --method random_as --dry-run
 ```
@@ -26,7 +26,7 @@ python -m external_comparison.runners.humaneval \
 EC-1 启动前必须先运行无模型调用的门禁：
 
 ```bash
-python -m external_comparison.runners.ec1_preflight \
+CUDA_VISIBLE_DEVICES=4 uv run python -m external_comparison.runners.ec1_preflight \
   --dataset-path /path/to/humaneval.jsonl \
   --public-test-path /path/to/humaneval_public_test.jsonl
 ```
@@ -41,9 +41,35 @@ uv run python scripts/fetch_ec1_humaneval_data.py --output-dir data/ec1_humaneva
 `aflow/humaneval_test.jsonl` 和 `aflow/humaneval_public_test.jsonl` 的路径传给
 preflight；脚本会记录每个实际文件的 SHA-256。
 
-门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。正式运行还必须提供 AFlow 官方 Optimizer 搜索产物（`RPAS_AFLOW_SEARCH_ARTIFACT`）和 MaAS fresh-train 产生的 checkpoint（`RPAS_MAAS_FRESH_TRAINED=1`、`RPAS_MAAS_CHECKPOINT`）；仅设置环境变量不能绕过门禁。
+门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。原生 adapter 会为每个 seed 复制一个独立官方 checkout：AFlow 必须现场调用 `Optimizer.optimize("Graph")` 并以验证集选择 workflow；MaAS 必须现场 train、验证新的 controller checkpoint 后调用官方 test。既有 `round_1` 或随机 controller 都会被拒绝。
+
+先用无模型调用的 staging smoke 检查官方源码和四文件路径：
+
+```bash
+python -m external_comparison.runners.ec1_native_smoke \
+  --method aflow --source-root external_baselines/AFlow \
+  --dataset-path data/ec1_humaneval/official/humaneval.jsonl \
+  --public-test-path data/ec1_humaneval/aflow/humaneval_public_test.jsonl \
+  --output-dir outputs/ec1_smoke --seed 0
+```
+
+seed 0 pilot 使用显式的 GPU 4 或 GPU 5；`scripts/run_ec1_native.sh` 每次只允许一张卡。正式三 seed 运行要求同时提供 AFlow validate/test provenance 文件，并显式冻结 `RPAS_AFLOW_MAX_ROUNDS` 与 `RPAS_MAAS_SAMPLE`，避免基于 test 结果调整搜索预算。
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
+
+运行前需要有一个可达的 OpenAI-compatible inference endpoint；它由实验环境单独管理，launcher 不会启动或终止模型服务。设置不含密钥的参数后可启动 pilot：
+
+```bash
+export RPAS_EXTERNAL_MODEL='Qwen/Qwen3.5-9B'
+export RPAS_EXTERNAL_API_BASE='http://127.0.0.1:29500/v1'
+export RPAS_EC1_SEED=0
+bash scripts/run_ec1_native.sh aflow 4 \
+  data/ec1_humaneval/official/humaneval.jsonl \
+  data/ec1_humaneval/aflow/humaneval_public_test.jsonl \
+  outputs/ec1_native pilot
+```
+
+`RPAS_EXTERNAL_API_KEY` 只应在运行环境中设置，不能写入配置、日志或 Git。pilot 成功后，依据 search cost 冻结预算，再以 `formal` 运行 seed 0/1/2；三种方法都使用同一个 data seed、endpoint、解码参数和 public-test tool access。
 
 ## 当前 EC-2 结果边界
 
@@ -84,11 +110,11 @@ python -m external_comparison.runners.aggregate_mmlu \
 2. 不把原论文中的数字直接抄进表格；每个方法必须在同一 executor、数据划分、模型、解码、评测器和 telemetry 边界下重新跑，或明确标注为 original-paper-fidelity appendix。
 3. 不强迫不同方法使用同样的迭代次数；比较 realized task-model calls/tokens 和累计预算曲线。
 4. test split 不参与搜索、重排、停止、调参或选择。
-5. 当前没有接入 GPTSwarm、AFlow、G-Designer、MaAS 的可运行原生实现，因此不能宣称已有外部对比结果。
+5. EC-1 已接入 AFlow 和 MaAS 的原生 fresh-search/fresh-train adapter，但尚未产生正式实验结果；在 pilot、预算冻结和三 seed formal run 完成前，不得宣称已有外部对比结果。
 
 ## 下一步运行顺序
 
-1. 冻结 HumanEval 数据 checksum、executor、model endpoint、decoding 和 answer evaluator。
-2. 先接入 RPAS artifact normalization，再接入 EC-1 的原生 baseline adapters。
-3. 用 dry-run 检查配置、manifest、telemetry 和预算账本。
-4. 通过 valid-rate 和 data-leakage gates 后，才允许发起正式搜索。
+1. 验证 OpenAI-compatible endpoint 与冻结的 Qwen3.5-9B 模型版本。
+2. 使用 AFlow、MaAS 与 RPAS 分别完成 seed 0 pilot。
+3. 仅按 search cost 冻结预算，并记录在 run manifest。
+4. 在 GPU 4/5 上完成三 seed formal runs，再通过 valid-rate 和 data-leakage gates 汇总主表。

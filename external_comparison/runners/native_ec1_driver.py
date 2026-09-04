@@ -1,0 +1,295 @@
+"""Run one isolated native EC-1 baseline search/train and held-out test.
+
+This driver deliberately calls the public upstream ``Optimizer.optimize``
+methods.  It is invoked in a separate Python process so imports, globals, and
+seed state from AFlow and MaAS cannot contaminate one another.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import os
+import shutil
+import sys
+import time
+import types
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+from external_comparison.adapters.native_runtime import (
+    seed_everything,
+    source_manifest,
+    stage_checkout,
+    stage_humaneval_data,
+    write_aflow_config,
+    write_maas_config,
+)
+
+
+def _append(path: Path, record: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _usage_record(method: str, phase: str, usage: Any, model: str, started: float) -> dict[str, Any]:
+    value = usage.model_dump() if hasattr(usage, "model_dump") else dict(usage or {})
+    prompt = int(value.get("prompt_tokens", value.get("input_tokens", 0)) or 0)
+    completion = int(value.get("completion_tokens", value.get("output_tokens", 0)) or 0)
+    return {
+        "method": method,
+        "phase": phase,
+        "model": model,
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "total_tokens": int(value.get("total_tokens", prompt + completion) or prompt + completion),
+        "latency_ms": max(0.0, (time.perf_counter() - started) * 1000),
+    }
+
+
+def _csv_rows(root: Path, test_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_prompt = {str(row["prompt"]): str(row["task_id"]) for row in test_rows}
+    csvs = sorted(root.rglob("*.csv"), key=lambda path: path.stat().st_mtime)
+    if not csvs:
+        raise RuntimeError(f"native test did not write a CSV under {root}")
+    values: list[dict[str, Any]] = []
+    with csvs[-1].open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            prompt = row.get("inputs", "")
+            score = float(row.get("score", "0") or 0.0)
+            values.append(
+                {
+                    "task_id": by_prompt.get(prompt, prompt),
+                    "passed": score == 1.0,
+                    "native_score": score,
+                    "output": row.get("prediction", ""),
+                    "native_evaluator": "official_upstream_humaneval",
+                }
+            )
+    if len(values) != 131:
+        raise RuntimeError(f"native held-out test must produce 131 rows, found {len(values)}")
+    return values
+
+
+def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
+    workspace = stage_checkout(source, run_root, "aflow", args.seed, replace=args.replace_workspace)
+    data = stage_humaneval_data(workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
+    write_aflow_config(workspace, args.model, args.base_url, args.api_key)
+    telemetry = run_root / "_native_aflow_calls.jsonl"
+    os.chdir(workspace)
+    sys.path.insert(0, str(workspace))
+    seed_everything(args.seed)
+
+    from scripts.async_llm import AsyncLLM, LLMConfig
+    from scripts.optimizer import Optimizer
+
+    original_call = AsyncLLM.__call__
+
+    async def instrumented_call(self, prompt):
+        started = time.perf_counter()
+        original_create = self.aclient.chat.completions.create
+
+        async def capped_create(*call_args, **call_kwargs):
+            # The upstream client omits this argument; EC-1 must share the
+            # same completion cap across methods.
+            call_kwargs.setdefault("max_tokens", args.max_tokens)
+            call_kwargs.setdefault("extra_body", {"chat_template_kwargs": {"enable_thinking": False}})
+            return await original_create(*call_args, **call_kwargs)
+
+        self.aclient.chat.completions.create = capped_create
+        try:
+            result = await original_call(self, prompt)
+        finally:
+            self.aclient.chat.completions.create = original_create
+        history = self.get_usage_summary().get("history", [])
+        if history:
+            _append(telemetry, _usage_record("aflow", os.environ["RPAS_EC1_PHASE"], history[-1], self.config.model, started))
+        return result
+
+    AsyncLLM.__call__ = instrumented_call
+    config = LLMConfig({"model": args.model, "key": args.api_key, "base_url": args.base_url, "temperature": 0.0, "top_p": 1.0})
+    optimizer = Optimizer(
+        dataset="HumanEval",
+        question_type="code",
+        opt_llm_config=config,
+        exec_llm_config=config,
+        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
+        optimized_path="workspace",
+        sample=args.aflow_sample,
+        initial_round=1,
+        max_rounds=args.aflow_max_rounds,
+        validation_rounds=args.aflow_validation_rounds,
+        check_convergence=False,
+    )
+    started = time.perf_counter()
+    os.environ["RPAS_EC1_PHASE"] = "search"
+    optimizer.optimize("Graph")
+    search_wall_clock = time.perf_counter() - started
+    results_path = workspace / "workspace" / "HumanEval" / "workflows" / "results.json"
+    if not results_path.is_file():
+        raise RuntimeError("AFlow Optimizer search did not create workflows/results.json")
+    search_rows = json.loads(results_path.read_text(encoding="utf-8"))
+    candidates = [row for row in search_rows if isinstance(row.get("round"), int) and (workspace / "workspace" / "HumanEval" / "workflows" / f"round_{row['round']}" / "graph.py").is_file()]
+    if not candidates:
+        raise RuntimeError("AFlow Optimizer search did not materialize an executable workflow")
+    selected = max(candidates, key=lambda row: float(row.get("score", 0.0)))
+    selected_round = int(selected["round"])
+    # Upstream Optimizer.test() has a fixed ``rounds=[1]``.  The copied
+    # selected workflow keeps that official evaluator while selecting by the
+    # search-only validation artifact.
+    test_root = workspace / "workspace" / "HumanEval" / "workflows_test"
+    shutil.rmtree(test_root, ignore_errors=True)
+    shutil.copytree(workspace / "workspace" / "HumanEval" / "workflows" / f"round_{selected_round}", test_root / "round_1")
+    os.environ["RPAS_EC1_PHASE"] = "test"
+    optimizer.test()
+    test_rows = [json.loads(line) for line in Path(data["test_path"]).read_text(encoding="utf-8").splitlines() if line.strip()]
+    outputs = _csv_rows(test_root / "round_1", test_rows)
+    return {
+        "manifest": {**source_manifest(source, workspace, "aflow", args.seed, data), "implementation_status": "official_optimizer_graph_then_selected_workflow_test", "aflow_max_rounds": args.aflow_max_rounds, "aflow_sample": args.aflow_sample, "aflow_validation_rounds": args.aflow_validation_rounds, "selected_round": selected_round, "selected_validation_score": selected.get("score"), "search_wall_clock_seconds": search_wall_clock},
+        "search_rows": search_rows,
+        "test_rows": outputs,
+        "telemetry_path": str(telemetry),
+    }
+
+
+def _install_maas_import_compat(workspace: Path) -> None:
+    import maas
+
+    tools_module = types.ModuleType("maas.tools")
+    tools_module.__path__ = [str(workspace / "maas" / "tools")]
+
+    class SearchEngineType(Enum):
+        SERPAPI_GOOGLE = "serpapi"
+        SERPER_GOOGLE = "serper"
+        DIRECT_GOOGLE = "google"
+        DUCK_DUCK_GO = "ddg"
+        CUSTOM_ENGINE = "custom"
+        BING = "bing"
+
+    class WebBrowserEngineType(Enum):
+        PLAYWRIGHT = "playwright"
+        SELENIUM = "selenium"
+        CUSTOM = "custom"
+
+    tools_module.SearchEngineType = SearchEngineType
+    tools_module.WebBrowserEngineType = WebBrowserEngineType
+    sys.modules["maas.tools"] = tools_module
+    maas.tools = tools_module
+
+
+def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
+    workspace = stage_checkout(source, run_root, "maas", args.seed, replace=args.replace_workspace)
+    data = stage_humaneval_data(workspace, "maas", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
+    write_maas_config(workspace, args.model, args.base_url, args.api_key, args.seed)
+    telemetry = run_root / "_native_maas_calls.jsonl"
+    os.environ["METAGPT_PROJECT_ROOT"] = str(workspace)
+    os.chdir(workspace)
+    sys.path.insert(0, str(workspace))
+    seed_everything(args.seed)
+
+    _install_maas_import_compat(workspace)
+    from maas.configs.models_config import ModelsConfig
+    from maas.ext.maas.scripts.optimizer import Optimizer
+    from maas.ext.maas.scripts.optimizer_utils.data_utils import DataUtils
+    from maas.provider.base_llm import BaseLLM
+    from maas.provider.openai_api import OpenAILLM
+
+    # The released call sites pass only ``round, score`` although the released
+    # DataUtils requires three additional arguments.  This narrow compatibility
+    # shim is applied only to the staged checkout and is recorded in the result.
+    original_create_result = DataUtils.create_result_data
+
+    def compatible_result(self, round, score, avg_cost=0.0, total_cost=0.0, token=0):
+        return original_create_result(self, round, score, avg_cost, total_cost, token)
+
+    DataUtils.create_result_data = compatible_result
+    original_update = BaseLLM._update_costs
+
+    def instrumented_update(self, usage, model=None, local_calc_usage=True):
+        started = time.perf_counter()
+        result = original_update(self, usage, model=model, local_calc_usage=local_calc_usage)
+        _append(telemetry, _usage_record("maas", os.environ["RPAS_EC1_PHASE"], usage, str(model or getattr(self, "model", args.model)), started))
+        return result
+
+    BaseLLM._update_costs = instrumented_update
+    original_kwargs = OpenAILLM._cons_kwargs
+
+    def controlled_kwargs(self, messages, timeout=0, **extra_kwargs):
+        values = original_kwargs(self, messages, timeout=timeout, **extra_kwargs)
+        values["max_tokens"] = args.max_tokens
+        values["top_p"] = 1.0
+        values.setdefault("extra_body", {"chat_template_kwargs": {"enable_thinking": False}})
+        return values
+
+    OpenAILLM._cons_kwargs = controlled_kwargs
+    config = ModelsConfig.default().get(args.model)
+    if config is None:
+        raise RuntimeError(f"staged MaAS model config not found: {args.model}")
+    optimizer = Optimizer(
+        dataset="HumanEval",
+        question_type="code",
+        opt_llm_config=config,
+        exec_llm_config=config,
+        operators=["Generate", "GenerateCoT", "MultiGenerateCoT", "ScEnsemble", "Test", "SelfRefine", "EarlyStop"],
+        optimized_path="maas/ext/maas/scripts/optimized",
+        sample=args.maas_sample,
+        round=1,
+        batch_size=args.maas_batch_size,
+        lr=args.maas_lr,
+        is_textgrad=False,
+    )
+    started = time.perf_counter()
+    os.environ["RPAS_EC1_PHASE"] = "search"
+    optimizer.optimize("Graph")
+    search_wall_clock = time.perf_counter() - started
+    checkpoint = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "train" / "round_1" / f"HumanEval_controller_sample{args.maas_sample}.pth"
+    if not checkpoint.is_file() or checkpoint.stat().st_size < 1024:
+        raise RuntimeError(f"MaAS fresh training did not materialize controller checkpoint: {checkpoint}")
+    os.environ["RPAS_EC1_PHASE"] = "test"
+    optimizer.optimize("Test")
+    test_rows = [json.loads(line) for line in Path(data["test_path"]).read_text(encoding="utf-8").splitlines() if line.strip()]
+    test_root = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "test" / "round_1"
+    outputs = _csv_rows(test_root, test_rows)
+    return {
+        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token"},
+        "search_rows": [{"round": 1, "checkpoint": str(checkpoint)}],
+        "test_rows": outputs,
+        "telemetry_path": str(telemetry),
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Native EC-1 isolated baseline driver")
+    parser.add_argument("--method", choices=("aflow", "maas"), required=True)
+    parser.add_argument("--source-root", required=True)
+    parser.add_argument("--dataset-path", required=True)
+    parser.add_argument("--public-test-path", required=True)
+    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--seed", type=int, required=True)
+    parser.add_argument("--data-seed", type=int, default=2026)
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--base-url", required=True)
+    parser.add_argument("--api-key", default="EMPTY")
+    parser.add_argument("--max-tokens", type=int, default=6144)
+    parser.add_argument("--aflow-max-rounds", type=int, default=3)
+    parser.add_argument("--aflow-sample", type=int, default=4)
+    parser.add_argument("--aflow-validation-rounds", type=int, default=1)
+    parser.add_argument("--maas-sample", type=int, default=4)
+    parser.add_argument("--maas-batch-size", type=int, default=4)
+    parser.add_argument("--maas-lr", type=float, default=0.01)
+    parser.add_argument("--replace-workspace", action="store_true")
+    args = parser.parse_args()
+    source = Path(args.source_root).resolve()
+    run_root = Path(args.output_dir).resolve()
+    result = _aflow(args, source, run_root) if args.method == "aflow" else _maas(args, source, run_root)
+    output = run_root / f"_{args.method}_driver_result.json"
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(output)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

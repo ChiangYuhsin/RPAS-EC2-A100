@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# One job per invocation.  The caller must choose GPU 4 or GPU 5 explicitly.
+if [[ $# -lt 5 ]]; then
+  echo "usage: $0 <aflow|maas|rpas> <4|5> <humaneval.jsonl> <public_test.jsonl> <output_dir> [pilot|formal]" >&2
+  exit 2
+fi
+
+method="$1"
+gpu="$2"
+dataset="$3"
+public_test="$4"
+output="$5"
+run_kind="${6:-pilot}"
+if [[ "$gpu" != "4" && "$gpu" != "5" ]]; then
+  echo "EC-1 permits only GPU 4 or GPU 5" >&2
+  exit 2
+fi
+
+export RPAS_EC1_GPU="$gpu"
+export CUDA_VISIBLE_DEVICES="$gpu"
+command=(uv run python -m external_comparison.runners.native_humaneval \
+  --repo-root . \
+  --method "$method" --seed "${RPAS_EC1_SEED:-0}" --dataset-path "$dataset" \
+  --public-test-path "$public_test" --output-dir "$output" --run-kind "$run_kind")
+if [[ "$run_kind" == "formal" ]]; then
+  : "${RPAS_EC1_AFLOW_VALIDATE_PATH:?formal runs require RPAS_EC1_AFLOW_VALIDATE_PATH}"
+  : "${RPAS_EC1_AFLOW_TEST_PATH:?formal runs require RPAS_EC1_AFLOW_TEST_PATH}"
+  command+=(--aflow-validate-path "$RPAS_EC1_AFLOW_VALIDATE_PATH" --aflow-test-path "$RPAS_EC1_AFLOW_TEST_PATH")
+fi
+"${command[@]}"

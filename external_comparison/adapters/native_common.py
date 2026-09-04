@@ -168,11 +168,20 @@ def require_valid_answer_rate(
     return valid_rate
 
 
-def write_native_result(output_dir: str | Path, manifest: dict[str, Any], rows: list[dict[str, Any]], calls: list[dict[str, Any]], selected: dict[str, Any] | None = None) -> None:
+def write_native_result(
+    output_dir: str | Path,
+    manifest: dict[str, Any],
+    rows: list[dict[str, Any]],
+    calls: list[dict[str, Any]],
+    selected: dict[str, Any] | None = None,
+    search_rows: list[dict[str, Any]] | None = None,
+) -> None:
     root = Path(output_dir)
     root.mkdir(parents=True, exist_ok=True)
     (root / "run_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (root / "search_rows.jsonl").write_text("", encoding="utf-8")
+    with (root / "search_rows.jsonl").open("w", encoding="utf-8") as handle:
+        for row in search_rows or []:
+            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
     with (root / "calls.jsonl").open("w", encoding="utf-8") as handle:
         for record in calls:
             handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")

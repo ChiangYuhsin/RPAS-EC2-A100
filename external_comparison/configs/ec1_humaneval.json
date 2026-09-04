@@ -22,5 +22,15 @@
   },
   "data_manifest_required": true,
   "public_test_manifest_required": true,
-  "formal_gate": "ec1_preflight_then_native_search_train_checkpoint_test"
+  "formal_gate": "ec1_preflight_then_native_search_train_checkpoint_test",
+  "native_pilot": {
+    "seed": 0,
+    "aflow_max_rounds": 3,
+    "aflow_sample": 4,
+    "aflow_validation_rounds": 1,
+    "maas_sample": 4,
+    "maas_batch_size": 4,
+    "maas_lr": 0.01,
+    "note": "Pilot only. Freeze formal budgets before 3-seed runs; do not select them using held-out test results."
+  }
 }
