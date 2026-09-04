@@ -97,3 +97,11 @@ class PublicTestExecutor:
             (time.perf_counter() - started) * 1000,
             "" if completed.returncode == 0 else feedback,
         )
+
+    def has_task(self, task_id: str) -> bool:
+        """Whether the frozen AFlow artifact exposes a test for this task."""
+        return task_id in self._tests
+
+    @property
+    def task_count(self) -> int:
+        return len(self._tests)

@@ -95,6 +95,7 @@ def _frozen_aflow_splits(
 
 def _summary(tasks: list[dict[str, Any]]) -> dict[str, Any]:
     calls = [task["trace"] for task in tasks]
+    public_available = [task for task in tasks if task["public_test_available"]]
     return {
         "score": sum(bool(task["passed"]) for task in tasks) / len(tasks) if tasks else 0.0,
         "correct": sum(bool(task["passed"]) for task in tasks),
@@ -106,7 +107,9 @@ def _summary(tasks: list[dict[str, Any]]) -> dict[str, Any]:
         "model_errors": sum(bool(task["model_error"]) for task in tasks),
         "public_test_calls": sum(int(task["public_test_calls"]) for task in tasks),
         "public_test_repairs": sum(int(task["public_test_repairs"]) for task in tasks),
-        "public_test_pass_rate": sum(bool(task["public_test_passed"]) for task in tasks) / len(tasks) if tasks else 0.0,
+        "public_test_available_tasks": len(public_available),
+        "public_test_coverage": len(public_available) / len(tasks) if tasks else 0.0,
+        "public_test_pass_rate": sum(bool(task["public_test_passed"]) for task in public_available) / len(public_available) if public_available else 0.0,
     }
 
 
@@ -130,10 +133,12 @@ def _evaluate_candidate(
         example = {"id": task.task_id, "dataset": "humaneval", "input": task.prompt, "answer": ""}
         output, trace = run_single_architecture(candidate=candidate, example=example, models=models, profile=profile)
         code = extract_code(output, task.entry_point)
-        public = executor.run(task.task_id, task.entry_point, code)
-        tool_events.append({"split": split, "candidate_id": candidate["id"], "attempt": 0, **public.to_dict()})
+        public_available = executor.has_task(task.task_id)
+        public = executor.run(task.task_id, task.entry_point, code) if public_available else None
+        if public is not None:
+            tool_events.append({"split": split, "candidate_id": candidate["id"], "attempt": 0, **public.to_dict()})
         repaired = False
-        if not public.passed:
+        if public is not None and not public.passed:
             repair_prompt = (
                 "Return a complete corrected Python implementation, with no explanation.\n\n"
                 f"Task:\n{task.prompt}\n\nSubmitted implementation:\n{code or '<no parseable function>'}\n\n"
@@ -173,9 +178,10 @@ def _evaluate_candidate(
             "model_error": any(call.error for call in trace.calls),
             "trace": trace.summary(profile),
             "execution": execution,
-            "public_test_calls": 2 if repaired else 1,
+            "public_test_calls": (2 if repaired else 1) if public_available else 0,
+            "public_test_available": public_available,
             "public_test_repairs": int(repaired),
-            "public_test_passed": public.passed,
+            "public_test_passed": public.passed if public is not None else None,
         }
         if capture_outputs:
             row.update({"model_output": output, "code": code})
@@ -350,6 +356,8 @@ def run(args: Any) -> dict[str, Any]:
             "config_sha256": sha256_file(config_path),
             "public_test_fixture": str(Path(args.public_test_path).resolve()),
             "public_test_sha256": sha256_file(args.public_test_path),
+            "public_test_fixture_tasks": executor.task_count,
+            "public_test_fixture_coverage_over_official_humaneval": executor.task_count / len(source),
             "split_manifest": task_manifest(splits),
             "fixed_split": "aflow_validate_test_fixtures",
             "search_fixture_source": str(Path(validate_fixture).resolve()),

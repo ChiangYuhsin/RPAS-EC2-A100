@@ -7,6 +7,7 @@ import pytest
 from external_comparison.adapters.native_runtime import stage_checkout, stage_humaneval_data
 from external_comparison.runners.humaneval import load_humaneval_tasks
 from external_comparison.runners.native_rpas_ec1 import _frozen_aflow_splits
+from external_comparison.runners.public_test_executor import PublicTestExecutor
 from external_comparison.runners import native_humaneval
 
 
@@ -86,6 +87,15 @@ def test_rpas_uses_the_same_frozen_aflow_fixtures(tmp_path: Path):
 
     assert [task.task_id for task in splits["search"]] == [row["task_id"] for row in rows[:33]]
     assert [task.task_id for task in splits["test"]] == [row["task_id"] for row in rows[33:]]
+
+
+def test_public_test_executor_exposes_partial_fixture_coverage(tmp_path: Path):
+    fixture = tmp_path / "public.jsonl"
+    _write_jsonl(fixture, [{"problem_id": "HumanEval/0", "entry_point": "f", "test": ["assert candidate() == 1"]}])
+    executor = PublicTestExecutor(fixture)
+    assert executor.task_count == 1
+    assert executor.has_task("HumanEval/0")
+    assert not executor.has_task("HumanEval/1")
 
 
 @pytest.mark.parametrize(
