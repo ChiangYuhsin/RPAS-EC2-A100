@@ -253,7 +253,14 @@ class OfficialGDesignerRuntime:
         local_datasets.__spec__ = importlib.machinery.ModuleSpec("datasets", loader=None, is_package=True)
         sys.modules["datasets"] = local_datasets
 
-        embedding_path = os.environ.get("RPAS_MAAS_EMBEDDING_MODEL", "").strip()
+        # This fixed encoder is part of G-Designer's native topology feature
+        # construction, not an executor LLM.  Prefer a method-specific name;
+        # retain the old variable only so existing local setup scripts remain
+        # usable until their next invocation.
+        embedding_path = os.environ.get(
+            "RPAS_GDESIGNER_EMBEDDING_MODEL",
+            os.environ.get("RPAS_MAAS_EMBEDDING_MODEL", ""),
+        ).strip()
         if embedding_path:
             local_embedding = Path(embedding_path).expanduser().resolve()
             if not local_embedding.is_dir():
