@@ -15,5 +15,10 @@
   },
   "metrics": ["pass_at_1", "inference_calls", "inference_tokens", "search_calls", "search_tokens", "search_wall_clock"],
   "native_adapter_policy": "formal_runs_require_native_adapter_and_frozen_source_manifest",
-  "status": "blocked_until_native_aflow_maas_adapters_and_dataset_manifest_are_ready"
+  "status": "native_adapters_present_execution_and_formal_gates_pending",
+  "official_repositories": {
+    "aflow": "https://github.com/FoundationAgents/AFlow",
+    "maas": "https://github.com/bingreeky/MaAS"
+  },
+  "data_manifest_required": true
 }

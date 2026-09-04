@@ -5,9 +5,9 @@
 set -euo pipefail
 
 # Each server is deliberately bound to exactly one authorized physical GPU.
-export CUDA_VISIBLE_DEVICES="${RPAS_CUDA_VISIBLE_DEVICES:-6}"
-if [ "${CUDA_VISIBLE_DEVICES}" != "6" ] && [ "${CUDA_VISIBLE_DEVICES}" != "7" ]; then
-  echo "This runner requires RPAS_CUDA_VISIBLE_DEVICES=6 or 7; got ${CUDA_VISIBLE_DEVICES}" >&2
+export CUDA_VISIBLE_DEVICES="${RPAS_CUDA_VISIBLE_DEVICES:-4}"
+if [ "${CUDA_VISIBLE_DEVICES}" != "4" ] && [ "${CUDA_VISIBLE_DEVICES}" != "5" ]; then
+  echo "This runner requires RPAS_CUDA_VISIBLE_DEVICES=4 or 5; got ${CUDA_VISIBLE_DEVICES}" >&2
   exit 2
 fi
 

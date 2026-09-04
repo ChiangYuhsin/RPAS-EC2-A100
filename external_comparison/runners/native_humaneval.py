@@ -19,6 +19,7 @@ def main() -> int:
     parser.add_argument("--dataset-path", required=True)
     parser.add_argument("--method", choices=["aflow", "maas", "rpas"], required=True)
     parser.add_argument("--seed", type=int, required=True)
+    parser.add_argument("--data-seed", type=int, default=2026)
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
     require_native_adapters([args.method])

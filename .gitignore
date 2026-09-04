@@ -217,6 +217,15 @@ __marimo__/
 runs/
 gepa_terminus/
 
+# External benchmark checkouts and local experiment state are not public artifacts.
+external_baselines/
+.rpas-run/
+.sg-run/
+.tmp/
+tmp/
+outputs/
+logs/
+
 #######################
 # RPAS local research artifacts
 #######################

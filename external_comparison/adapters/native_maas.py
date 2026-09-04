@@ -25,7 +25,8 @@ from external_comparison.adapters.native_common import (
 
 
 def _root() -> Path:
-    return env_path("RPAS_MAAS_ROOT", "/path/to/external_baselines/MaAS")
+    default = Path(__file__).resolve().parents[2] / "external_baselines" / "MaAS"
+    return env_path("RPAS_MAAS_ROOT", str(default))
 
 
 def _llm_config():
@@ -138,6 +139,15 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
     graph_module = importlib.import_module("maas.ext.maas.scripts.optimized.HumanEval.test.graph")
     torch.manual_seed(seed)
     controller = controller_module.MultiLayerController(device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    # The upstream split `.pth` files are not consumed by the published
+    # Optimizer.test() path. A valid EC-1 run must train this fresh controller
+    # with Optimizer.optimize("Graph") and then load the resulting
+    # HumanEval_controller_sample*.pth checkpoint before testing.
+    if os.environ.get("RPAS_MAAS_FRESH_TRAINED", "0") != "1":
+        raise RuntimeError(
+            "MaAS EC-1 requires the official fresh train -> checkpoint -> test "
+            "workflow; refusing to evaluate an untrained random controller"
+        )
     encoded_names = controller_module.sentence_encoder.model.encode(operator_names)
     embeddings = torch.as_tensor(encoded_names, dtype=torch.float32)
     if tuple(embeddings.shape) != (len(operator_names), 384):
@@ -172,7 +182,7 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
 
 
 def run_humaneval(args) -> None:
-    rows = split_rows(load_jsonl(args.dataset_path), args.seed, 80, 40, 44)["test"]
+    rows = split_rows(load_jsonl(args.dataset_path), args.data_seed, 80, 40, 44)["test"]
     sample_limit = int(os.environ.get("RPAS_NATIVE_SAMPLE_LIMIT", "0"))
     if sample_limit > 0:
         rows = rows[:sample_limit]

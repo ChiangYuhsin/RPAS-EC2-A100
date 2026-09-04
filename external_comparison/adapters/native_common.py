@@ -36,7 +36,7 @@ def load_jsonl(path: str | Path) -> list[dict[str, Any]]:
 
 def split_rows(rows: list[dict[str, Any]], seed: int, search: int, select: int, test: int) -> dict[str, list[dict[str, Any]]]:
     ordered = list(rows)
-    random.Random(2026).shuffle(ordered)
+    random.Random(seed).shuffle(ordered)
     requested = search + select + test
     if requested > len(ordered):
         raise ValueError(f"requested {requested} rows, found {len(ordered)}")

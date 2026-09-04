@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import contextvars
 import importlib
 import os
@@ -168,7 +169,12 @@ async def _run(rows, output_dir: Path, seed: int) -> None:
             token = current_example_id.set(row["id"])
             started = time.perf_counter()
             try:
-                answers, _ = await graph.arun(input_dict, num_rounds=1)
+                # Graph.arun mutates node outputs, connections and decision
+                # state. Each example therefore needs an isolated graph.
+                realized_graph = copy.deepcopy(graph)
+                realized_graph.gcn = graph.gcn
+                realized_graph.mlp = graph.mlp
+                answers, _ = await realized_graph.arun(input_dict, num_rounds=1)
             finally:
                 current_example_id.reset(token)
             elapsed = (time.perf_counter() - started) * 1000

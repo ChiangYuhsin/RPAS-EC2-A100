@@ -22,7 +22,8 @@ from external_comparison.adapters.native_common import (
 
 
 def _root() -> Path:
-    return env_path("RPAS_AFLOW_ROOT", "/path/to/external_baselines/AFlow")
+    default = Path(__file__).resolve().parents[2] / "external_baselines" / "AFlow"
+    return env_path("RPAS_AFLOW_ROOT", str(default))
 
 
 def _config():
@@ -86,5 +87,5 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
 
 
 def run_humaneval(args) -> None:
-    rows = split_rows(load_jsonl(args.dataset_path), args.seed, 80, 40, 44)["test"]
+    rows = split_rows(load_jsonl(args.dataset_path), args.data_seed, 80, 40, 44)["test"]
     asyncio.run(_run(rows, Path(args.output_dir) / "aflow" / f"seed_{args.seed}", args.seed))
