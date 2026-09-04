@@ -562,11 +562,18 @@ def run_experiment(
         proposals.append({"attempt": attempts, "status": "accepted", "candidate_id": candidate_id, "metadata": proposal.metadata})
         accepted += 1
 
+    # Native EC-1 uses one 33-task development partition.  The official
+    # baselines perform their search/training and selection on this same
+    # partition, so RPAS must not invent a second selection split here.
     shortlist = _shortlist(search_rows, shortlist_size)
     selection_rows: list[dict[str, Any]] = []
     if selection_path.exists():
         selection_path.unlink()
     for search_row in shortlist:
+        if not splits["select"]:
+            selection_rows.append({**search_row, "split": "select", "selection_source": "development_search_split"})
+            append_jsonl(selection_path, selection_rows[-1])
+            continue
         candidate = adapter.candidate(search_row["candidate_id"])
         result = evaluate_candidate(
             candidate=candidate,

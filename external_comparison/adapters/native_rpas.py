@@ -152,6 +152,9 @@ def run_humaneval(args) -> None:
         output_dir=Path(args.output_dir).resolve(),
         method="rpas",
         seed=args.seed,
+        search_size=33,
+        select_size=0,
+        test_size=131,
         dry_run=False,
     )
     run_dir = Path(result["run_dir"])

@@ -16,7 +16,7 @@ from external_comparison.adapters.native_common import (
     extract_code,
     git_commit,
     load_jsonl,
-    split_rows,
+    humaneval_external_split,
     write_native_result,
 )
 
@@ -57,6 +57,11 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
     root = _root()
     if not root.exists():
         raise FileNotFoundError(f"AFlow repository not found: {root}")
+    if os.environ.get("RPAS_AFLOW_FRESH_SEARCH", "0") != "1":
+        raise RuntimeError(
+            "AFlow EC-1 requires the official Optimizer search stage; refusing "
+            "to report the round_1 seed workflow as a formal result"
+        )
     os.chdir(root)
     sys.path.insert(0, str(root))
     graph_module = importlib.import_module("workspace.HumanEval.workflows.round_1.graph")
@@ -87,5 +92,5 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
 
 
 def run_humaneval(args) -> None:
-    rows = split_rows(load_jsonl(args.dataset_path), args.data_seed, 80, 40, 44)["test"]
+    rows = humaneval_external_split(load_jsonl(args.dataset_path), args.data_seed)["test"]
     asyncio.run(_run(rows, Path(args.output_dir) / "aflow" / f"seed_{args.seed}", args.seed))

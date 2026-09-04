@@ -22,6 +22,16 @@ python -m external_comparison.runners.humaneval \
 这些方法是受控共域比较策略，不是对应论文官方代码的完整复现，不能写成 AFlow、MaAS 或 G-Designer。
 
 正式外部实验配置是 `configs/ec1_humaneval.json` 和 `configs/ec2_mmlu.json`。
+
+EC-1 启动前必须先运行无模型调用的门禁：
+
+```bash
+python -m external_comparison.runners.ec1_preflight \
+  --dataset-path /path/to/humaneval.jsonl \
+  --public-test-path /path/to/humaneval_public_test.jsonl
+```
+
+门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。AFlow 还必须设置 `RPAS_AFLOW_FRESH_SEARCH=1`，MaAS 必须设置 `RPAS_MAAS_FRESH_TRAINED=1`；否则程序会拒绝生成正式结果。
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
 

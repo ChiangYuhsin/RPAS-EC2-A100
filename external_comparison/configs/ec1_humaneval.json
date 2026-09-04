@@ -5,7 +5,7 @@
   "methods": ["aflow", "maas", "rpas"],
   "search_seeds": [0, 1, 2],
   "data_seed": 2026,
-  "split_sizes": {"search": 80, "select": 40, "test": 44},
+  "split_sizes": {"search": 33, "select": 0, "test": 131},
   "shortlist_size": 8,
   "shared_inference": {
     "backbone": "Qwen3.5-9B",
@@ -15,10 +15,12 @@
   },
   "metrics": ["pass_at_1", "inference_calls", "inference_tokens", "search_calls", "search_tokens", "search_wall_clock"],
   "native_adapter_policy": "formal_runs_require_native_adapter_and_frozen_source_manifest",
-  "status": "native_adapters_present_execution_and_formal_gates_pending",
+  "status": "native_search_required_before_formal_run",
   "official_repositories": {
     "aflow": "https://github.com/FoundationAgents/AFlow",
     "maas": "https://github.com/bingreeky/MaAS"
   },
-  "data_manifest_required": true
+  "data_manifest_required": true,
+  "public_test_manifest_required": true,
+  "formal_gate": "ec1_preflight_then_native_search_train_checkpoint_test"
 }

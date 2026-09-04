@@ -19,7 +19,7 @@ from external_comparison.adapters.native_common import (
     extract_code,
     git_commit,
     load_jsonl,
-    split_rows,
+    humaneval_external_split,
     write_native_result,
 )
 
@@ -182,7 +182,7 @@ async def _run(rows: list[dict], output_dir: Path, seed: int) -> None:
 
 
 def run_humaneval(args) -> None:
-    rows = split_rows(load_jsonl(args.dataset_path), args.data_seed, 80, 40, 44)["test"]
+    rows = humaneval_external_split(load_jsonl(args.dataset_path), args.data_seed)["test"]
     sample_limit = int(os.environ.get("RPAS_NATIVE_SAMPLE_LIMIT", "0"))
     if sample_limit > 0:
         rows = rows[:sample_limit]

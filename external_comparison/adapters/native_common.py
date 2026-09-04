@@ -47,6 +47,11 @@ def split_rows(rows: list[dict[str, Any]], seed: int, search: int, select: int, 
     }
 
 
+def humaneval_external_split(rows: list[dict[str, Any]], data_seed: int) -> dict[str, list[dict[str, Any]]]:
+    """Apply the frozen EC-1 split: 33 development and 131 held-out tasks."""
+    return split_rows(rows, data_seed, search=33, select=0, test=131)
+
+
 def load_mmlu_csv(data_dir: str | Path, split: str) -> list[dict[str, Any]]:
     root = Path(data_dir)
     rows: list[dict[str, Any]] = []
