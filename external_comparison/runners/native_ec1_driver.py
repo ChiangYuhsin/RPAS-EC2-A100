@@ -125,6 +125,8 @@ def _install_aflow_runtime_compatibility() -> str:
 
 
 def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
+    if args.aflow_test_only:
+        return _aflow_test_only(args, source, run_root)
     workspace = stage_checkout(
         source, run_root, "aflow", args.seed, replace=args.replace_workspace, require_clean_git=True
     )
@@ -215,6 +217,104 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
     outputs = _csv_rows(test_root / "round_1", test_rows)
     return {
         "manifest": {**source_manifest(source, workspace, "aflow", args.seed, data), "implementation_status": "official_optimizer_graph_then_selected_workflow_test", "aflow_max_rounds": args.aflow_max_rounds, "aflow_sample": args.aflow_sample, "aflow_validation_rounds": args.aflow_validation_rounds, "selected_round": selected_round, "selected_validation_score": selected.get("score"), "search_wall_clock_seconds": search_wall_clock, "staged_compatibility_patch": compatibility_patch},
+        "search_rows": search_rows,
+        "test_rows": outputs,
+        "telemetry_path": str(telemetry),
+    }
+
+
+def _aflow_test_only(args, source: Path, run_root: Path) -> dict[str, Any]:
+    """Evaluate a completed, search-only AFlow workspace on held-out tasks.
+
+    This is intentionally narrow: it may only be used after the native AFlow
+    search has completed.  The selected workflow is reconstructed exclusively
+    from ``workflows/results.json`` before the held-out evaluator is invoked.
+    It never calls ``Optimizer.optimize('Graph')`` or stages a new workspace.
+    """
+    workspace = Path(args.aflow_existing_workspace).resolve()
+    if not workspace.is_dir() or workspace.parent.name != "_workspaces":
+        raise ValueError("--aflow-existing-workspace must be an existing isolated AFlow workspace")
+    results_path = workspace / "workspace" / "HumanEval" / "workflows" / "results.json"
+    if not results_path.is_file():
+        raise RuntimeError("AFlow test-only resume requires completed workflows/results.json")
+    search_rows = json.loads(results_path.read_text(encoding="utf-8"))
+    workflow_root = workspace / "workspace" / "HumanEval" / "workflows"
+    candidates = [
+        row for row in search_rows
+        if isinstance(row.get("round"), int)
+        and (workflow_root / f"round_{row['round']}" / "graph.py").is_file()
+    ]
+    if not candidates:
+        raise RuntimeError("AFlow test-only resume found no executable search candidate")
+    selected = max(candidates, key=lambda row: float(row.get("score", 0.0)))
+    selected_round = int(selected["round"])
+    data = stage_humaneval_data(
+        workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed,
+        search_fixture=Path(args.search_fixture), test_fixture=Path(args.test_fixture),
+    )
+    write_aflow_config(workspace, args.model, args.base_url, args.api_key)
+    telemetry = run_root / "_native_aflow_calls.jsonl"
+    if not telemetry.is_file():
+        raise RuntimeError("AFlow test-only resume requires preserved search telemetry")
+    os.chdir(workspace)
+    sys.path.insert(0, str(workspace))
+    seed_everything(args.seed)
+    from scripts.async_llm import AsyncLLM, LLMConfig
+    from scripts.optimizer import Optimizer
+
+    compatibility_patch = _install_aflow_runtime_compatibility()
+    original_call = AsyncLLM.__call__
+
+    async def instrumented_call(self, prompt):
+        started = time.perf_counter()
+        original_create = self.aclient.chat.completions.create
+
+        async def capped_create(*call_args, **call_kwargs):
+            call_kwargs.setdefault("max_tokens", args.max_tokens)
+            call_kwargs.setdefault("extra_body", {"chat_template_kwargs": {"enable_thinking": False}})
+            return await original_create(*call_args, **call_kwargs)
+
+        self.aclient.chat.completions.create = capped_create
+        try:
+            result = await original_call(self, prompt)
+        finally:
+            self.aclient.chat.completions.create = original_create
+        history = self.get_usage_summary().get("history", [])
+        if history:
+            _append(telemetry, _usage_record("aflow", "test", history[-1], self.config.model, started))
+        return result
+
+    AsyncLLM.__call__ = instrumented_call
+    config = LLMConfig({"model": args.model, "key": args.api_key, "base_url": args.base_url, "temperature": 0.0, "top_p": 1.0})
+    optimizer = Optimizer(
+        dataset="HumanEval", question_type="code", opt_llm_config=config, exec_llm_config=config,
+        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"], optimized_path="workspace",
+        sample=args.aflow_sample, initial_round=1, max_rounds=args.aflow_max_rounds,
+        validation_rounds=args.aflow_validation_rounds, check_convergence=False,
+    )
+    test_root = workspace / "workspace" / "HumanEval" / "workflows_test"
+    shutil.rmtree(test_root, ignore_errors=True)
+    shutil.copytree(workflow_root / f"round_{selected_round}", test_root / "round_1")
+    for stale_csv in (test_root / "round_1").glob("*.csv"):
+        stale_csv.unlink()
+    os.environ["RPAS_EC1_PHASE"] = "test"
+    asyncio.run(optimizer.test())
+    test_rows = [json.loads(line) for line in Path(data["test_path"]).read_text(encoding="utf-8").splitlines() if line.strip()]
+    outputs = _csv_rows(test_root / "round_1", test_rows)
+    return {
+        "manifest": {
+            **source_manifest(source, workspace, "aflow", args.seed, data),
+            "implementation_status": "official_optimizer_graph_then_selected_workflow_test",
+            "aflow_max_rounds": args.aflow_max_rounds,
+            "aflow_sample": args.aflow_sample,
+            "aflow_validation_rounds": args.aflow_validation_rounds,
+            "selected_round": selected_round,
+            "selected_validation_score": selected.get("score"),
+            "search_reused_completed_workspace": True,
+            "workspace_reused": True,
+            "search_result_sha256": __import__("hashlib").sha256(results_path.read_bytes()).hexdigest(),
+            "staged_compatibility_patch": compatibility_patch,
+        },
         "search_rows": search_rows,
         "test_rows": outputs,
         "telemetry_path": str(telemetry),
@@ -485,7 +585,21 @@ def main() -> int:
     parser.add_argument("--maas-batch-size", type=int, default=4)
     parser.add_argument("--maas-lr", type=float, default=0.01)
     parser.add_argument("--replace-workspace", action="store_true")
+    parser.add_argument(
+        "--aflow-test-only",
+        action="store_true",
+        help="Run only the official held-out evaluator against a completed isolated AFlow search workspace.",
+    )
+    parser.add_argument(
+        "--aflow-existing-workspace",
+        help="Completed isolated AFlow workspace required by --aflow-test-only.",
+    )
     args = parser.parse_args()
+    if args.aflow_test_only:
+        if args.method != "aflow" or not args.aflow_existing_workspace:
+            parser.error("--aflow-test-only requires --method aflow and --aflow-existing-workspace")
+        if args.replace_workspace:
+            parser.error("--aflow-test-only cannot replace its completed search workspace")
     source = Path(args.source_root).resolve()
     run_root = Path(args.output_dir).resolve()
     result = _aflow(args, source, run_root) if args.method == "aflow" else _maas(args, source, run_root)
