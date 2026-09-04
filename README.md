@@ -34,7 +34,7 @@ This working tree also contains the RPAS multi-agent architecture-search researc
 
 ### Public Experiment Bundle
 
-The reproducible external-comparison code, frozen protocols, and checked-in MMLU-57x10 controlled-subset outputs are documented in [TRANSFER_README_zh.md](TRANSFER_README_zh.md). See the [GPU4/GPU5 MMLU main table](docs/MMLU_MAIN_TABLE_GPU45.md), [delivery report](docs/MMLU_MAIN_EXPERIMENT_DELIVERY_20260904.md), and [external repository pins](docs/EXTERNAL_REPOSITORIES.md). Model weights, raw benchmark data, credentials, logs, and third-party checkout directories are intentionally excluded.
+The reproducible external-comparison code, frozen protocols, and machine-transfer instructions are documented in [TRANSFER_README_zh.md](TRANSFER_README_zh.md) and [docs/TRANSFER_TO_ANOTHER_MACHINE.md](docs/TRANSFER_TO_ANOTHER_MACHINE.md). The public bundle includes only the reviewed EC-1 and EC-3 fixed fixtures with provenance manifests; model weights, credentials, logs, outputs, third-party checkouts, MMLU data, and any private data remain excluded.
 
 ---
 

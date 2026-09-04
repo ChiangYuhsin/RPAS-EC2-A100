@@ -41,6 +41,11 @@ def _run_driver(args, output: Path) -> dict:
         "--maas-batch-size", os.environ.get("RPAS_MAAS_BATCH_SIZE", "4"),
         "--maas-lr", os.environ.get("RPAS_MAAS_LR", "0.01"),
     ]
+    if os.environ.get("RPAS_MAAS_TEST_ONLY") == "1":
+        checkpoint = os.environ.get("RPAS_MAAS_CONTROLLER_PATH", "").strip()
+        if not checkpoint:
+            raise RuntimeError("RPAS_MAAS_TEST_ONLY=1 requires RPAS_MAAS_CONTROLLER_PATH")
+        command.extend(["--maas-test-only", "--maas-controller-path", checkpoint])
     if os.environ.get("RPAS_EC1_REPLACE_WORKSPACE") == "1":
         command.append("--replace-workspace")
     subprocess.run(command, cwd=root, env=_gpu_env(), check=True)

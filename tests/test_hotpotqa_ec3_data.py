@@ -20,13 +20,15 @@ def _write(path: Path, rows: list[dict]) -> None:
 
 
 def test_prepare_freezes_1000_fixture_into_ec3_v3_splits(tmp_path: Path):
-    fixture = tmp_path / "fixture.jsonl"
+    validate = tmp_path / "validate.jsonl"
+    test = tmp_path / "test.jsonl"
     calibration = tmp_path / "train.jsonl"
-    _write(fixture, [_row(index) for index in range(1000)])
+    _write(validate, [_row(index) for index in range(200)])
+    _write(test, [_row(index) for index in range(200, 1000)])
     _write(calibration, [_row(index) for index in range(1000, 1040)])
 
     manifest = prepare(
-        fixture_path=fixture, calibration_path=calibration, output_dir=tmp_path / "frozen",
+        validate_fixture_path=validate, test_fixture_path=test, calibration_path=calibration, output_dir=tmp_path / "frozen",
         data_seed=2026, aflow_commit="3f457218fc716093fe53f6df8a5d5e6379d66346",
     )
 
@@ -36,6 +38,7 @@ def test_prepare_freezes_1000_fixture_into_ec3_v3_splits(tmp_path: Path):
     formal_ids = set(manifest["splits"]["search"]["ids"]) | set(manifest["splits"]["select"]["ids"]) | set(manifest["splits"]["test"]["ids"])
     assert len(formal_ids) == 1000
     assert formal_ids.isdisjoint(manifest["splits"]["calib"]["ids"])
+    assert manifest["splits"]["test"]["ids"] == [f"id-{index}" for index in range(200, 1000)]
     row = json.loads((tmp_path / "frozen" / "hotpotqa_test.jsonl").read_text().splitlines()[0])
     prompt = render_prompt(type("Example", (), row)())
     assert "supporting_facts" not in prompt

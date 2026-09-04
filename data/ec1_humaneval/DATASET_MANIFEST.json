@@ -1,0 +1,35 @@
+{
+  "benchmark": "HumanEval",
+  "official": {
+    "upstream": "openai/human-eval",
+    "version": "1.0.0",
+    "artifact": "data/ec1_humaneval/official/HumanEval.jsonl.gz",
+    "sha256": "b796127e635a67f93fb35c04f4cb03cf06f38c8072ee7cee8833d7bee06979ef",
+    "git_repository": "https://github.com/openai/human-eval.git",
+    "git_revision": "6d43fb980f9fee3c892a914eda09951f772ad10d",
+    "derived_jsonl_sha256": "1d49078ba3e2b196b9344535bef34a43021f038fad9561d6ee7c53450609a6a2",
+    "tasks": 164
+  },
+  "aflow": {
+    "archive_url": "https://drive.google.com/uc?export=download&id=1DNoegtZiUhWtvkd2xoIuElmIi4ah7k8e",
+    "mirror_repository": "https://github.com/CitrusYL/AgentSlimming.git",
+    "mirror_commit": "0bb1afc677e3751e09dc535e373f0316b0a8369f",
+    "files": {
+      "humaneval_validate.jsonl": {
+        "path": "data/ec1_humaneval/aflow/humaneval_validate.jsonl",
+        "bytes": 39356,
+        "sha256": "7c09e2424572a0e82b14d2dc145bf86feb2aeef9828b8b37c7e87dfe88d902f7"
+      },
+      "humaneval_test.jsonl": {
+        "path": "data/ec1_humaneval/aflow/humaneval_test.jsonl",
+        "bytes": 175082,
+        "sha256": "5f7417d249b5a1153d1313c944fafe61f5bcb19717b8d952eb45e6ea5aaa23d9"
+      },
+      "humaneval_public_test.jsonl": {
+        "path": "data/ec1_humaneval/aflow/humaneval_public_test.jsonl",
+        "bytes": 31970,
+        "sha256": "ad5e3bdddfa5d0a48ad75d027d293858b2cab4526ca645a54f117c4f0b596edc"
+      }
+    }
+  }
+}

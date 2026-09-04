@@ -479,7 +479,8 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     )
     write_maas_config(workspace, args.model, args.base_url, args.api_key, args.seed)
     telemetry = run_root / "_native_maas_calls.jsonl"
-    telemetry.unlink(missing_ok=True)
+    if not args.maas_test_only:
+        telemetry.unlink(missing_ok=True)
     os.environ["METAGPT_PROJECT_ROOT"] = str(workspace)
     os.chdir(workspace)
     sys.path.insert(0, str(workspace))
@@ -540,11 +541,19 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
         lr=args.maas_lr,
         is_textgrad=False,
     )
-    started = time.perf_counter()
-    os.environ["RPAS_EC1_PHASE"] = "search"
-    optimizer.optimize("Graph")
-    search_wall_clock = time.perf_counter() - started
     checkpoint = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "train" / "round_1" / f"HumanEval_controller_sample{args.maas_sample}.pth"
+    search_wall_clock: float | None = None
+    if args.maas_test_only:
+        saved_controller = Path(args.maas_controller_path).resolve()
+        if not saved_controller.is_file() or saved_controller.stat().st_size < 1024:
+            raise RuntimeError("--maas-controller-path must reference a non-empty trained controller checkpoint")
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(saved_controller, checkpoint)
+    else:
+        started = time.perf_counter()
+        os.environ["RPAS_EC1_PHASE"] = "search"
+        optimizer.optimize("Graph")
+        search_wall_clock = time.perf_counter() - started
     if not checkpoint.is_file() or checkpoint.stat().st_size < 1024:
         raise RuntimeError(f"MaAS fresh training did not materialize controller checkpoint: {checkpoint}")
     os.environ["RPAS_EC1_PHASE"] = "test"
@@ -553,8 +562,8 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     test_root = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "test" / "round_1"
     outputs = _csv_rows(test_root, test_rows)
     return {
-        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token; " + provider_patch + "; " + actions_patch + "; " + public_test_patch},
-        "search_rows": [{"round": 1, "checkpoint": str(checkpoint)}],
+        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_reused_trained_controller_then_test" if args.maas_test_only else "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "checkpoint_reused": args.maas_test_only, "checkpoint_source": str(Path(args.maas_controller_path).resolve()) if args.maas_test_only else None, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token; " + provider_patch + "; " + actions_patch + "; " + public_test_patch},
+        "search_rows": [{"round": 1, "checkpoint": str(checkpoint), "reused": args.maas_test_only}],
         "test_rows": outputs,
         "telemetry_path": str(telemetry),
     }
@@ -584,6 +593,15 @@ def main() -> int:
     parser.add_argument("--maas-sample", type=int, default=4)
     parser.add_argument("--maas-batch-size", type=int, default=4)
     parser.add_argument("--maas-lr", type=float, default=0.01)
+    parser.add_argument(
+        "--maas-test-only",
+        action="store_true",
+        help="Run official MaAS held-out test with a preserved trained controller; never invoke training.",
+    )
+    parser.add_argument(
+        "--maas-controller-path",
+        help="Trained controller checkpoint required by --maas-test-only.",
+    )
     parser.add_argument("--replace-workspace", action="store_true")
     parser.add_argument(
         "--aflow-test-only",
@@ -600,6 +618,11 @@ def main() -> int:
             parser.error("--aflow-test-only requires --method aflow and --aflow-existing-workspace")
         if args.replace_workspace:
             parser.error("--aflow-test-only cannot replace its completed search workspace")
+    if args.maas_test_only:
+        if args.method != "maas" or not args.maas_controller_path:
+            parser.error("--maas-test-only requires --method maas and --maas-controller-path")
+        if args.replace_workspace:
+            parser.error("--maas-test-only cannot replace its staged workspace")
     source = Path(args.source_root).resolve()
     run_root = Path(args.output_dir).resolve()
     result = _aflow(args, source, run_root) if args.method == "aflow" else _maas(args, source, run_root)

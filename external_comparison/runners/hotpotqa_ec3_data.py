@@ -150,23 +150,35 @@ def _stratified_take(rows: list[HotpotExample], count: int, rng: random.Random) 
     return selected
 
 
-def make_splits(fixture: list[HotpotExample], calibration_pool: list[HotpotExample], *, data_seed: int) -> dict[str, list[HotpotExample]]:
-    if len(fixture) != 1000:
-        raise ValueError(f"EC-3 requires an AFlow-provided 1000-example fixture, found {len(fixture)}")
-    fixture_ids = {row.task_id for row in fixture}
+def make_splits(
+    validation_fixture: list[HotpotExample], test_fixture: list[HotpotExample], calibration_pool: list[HotpotExample], *, data_seed: int
+) -> dict[str, list[HotpotExample]]:
+    """Preserve AFlow's 200 validation / 800 test fixture boundary.
+
+    Only its validation fixture is stratified into D_search and D_select.  The
+    supplied AFlow test fixture becomes D_test byte-for-byte in row content,
+    preventing a method-local re-sampling of the benchmark's held-out pool.
+    """
+    if len(validation_fixture) != 200 or len(test_fixture) != 800:
+        raise ValueError(
+            "EC-3 requires AFlow fixtures with exactly 200 validation and 800 test examples"
+        )
+    fixture_ids = {row.task_id for row in validation_fixture} | {row.task_id for row in test_fixture}
+    if len(fixture_ids) != 1000:
+        raise ValueError("EC-3 AFlow validation and test fixtures overlap")
     calibration_pool = [row for row in calibration_pool if row.task_id not in fixture_ids]
     if len(calibration_pool) < FORMAL_COUNTS["calib"]:
         raise ValueError("EC-3 calibration source has fewer than 40 examples disjoint from the formal fixture")
     rng = random.Random(data_seed)
-    remaining = list(fixture)
+    remaining = list(validation_fixture)
     search = _stratified_take(remaining, FORMAL_COUNTS["search"], rng)
     chosen = {row.task_id for row in search}
     remaining = [row for row in remaining if row.task_id not in chosen]
     select = _stratified_take(remaining, FORMAL_COUNTS["select"], rng)
     chosen.update(row.task_id for row in select)
-    test = [row for row in remaining if row.task_id not in chosen]
-    if len(test) != FORMAL_COUNTS["test"]:
-        raise AssertionError("EC-3 fixture split did not leave exactly 800 held-out rows")
+    if len(select) != FORMAL_COUNTS["select"]:
+        raise AssertionError("EC-3 validation split did not leave exactly 80 selection rows")
+    test = list(test_fixture)
     calib = _stratified_take(calibration_pool, FORMAL_COUNTS["calib"], random.Random(data_seed + 1))
     return {"calib": calib, "search": search, "select": select, "test": test}
 
@@ -179,12 +191,12 @@ def _write_jsonl(path: Path, rows: Iterable[HotpotExample]) -> None:
 
 
 def prepare(
-    *, fixture_path: Path, calibration_path: Path, output_dir: Path, data_seed: int, aflow_commit: str
+    *, validate_fixture_path: Path, test_fixture_path: Path, calibration_path: Path, output_dir: Path, data_seed: int, aflow_commit: str
 ) -> dict[str, Any]:
-    fixture = canonicalize(_read_records(fixture_path), source_split="aflow_official_fixture")
+    validation_fixture = canonicalize(_read_records(validate_fixture_path), source_split="aflow_validate_fixture")
+    test_fixture = canonicalize(_read_records(test_fixture_path), source_split="aflow_test_fixture")
     calibration = canonicalize(_read_records(calibration_path), source_split="hotpotqa_train")
-    splits = make_splits(fixture, calibration, data_seed=data_seed)
-    split_rows = {name: [asdict(row) for row in rows] for name, rows in splits.items()}
+    splits = make_splits(validation_fixture, test_fixture, calibration, data_seed=data_seed)
     split_manifest_sha256 = hashlib.sha256(
         json.dumps({name: [row.task_id for row in rows] for name, rows in splits.items()}, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
@@ -196,7 +208,10 @@ def prepare(
         "benchmark": "HotpotQA distractor / provided-context",
         "aflow_commit": aflow_commit,
         "data_seed": data_seed,
-        "fixture": {"path": str(fixture_path.resolve()), "sha256": _sha256(fixture_path), "bytes": fixture_path.stat().st_size, "count": len(fixture)},
+        "aflow_fixtures": {
+            "validate": {"path": str(validate_fixture_path.resolve()), "sha256": _sha256(validate_fixture_path), "bytes": validate_fixture_path.stat().st_size, "count": len(validation_fixture)},
+            "test": {"path": str(test_fixture_path.resolve()), "sha256": _sha256(test_fixture_path), "bytes": test_fixture_path.stat().st_size, "count": len(test_fixture)},
+        },
         "calibration_source": {"path": str(calibration_path.resolve()), "sha256": _sha256(calibration_path), "bytes": calibration_path.stat().st_size, "count": len(calibration)},
         "splits": {
             name: {"path": str((output_dir / f"hotpotqa_{name}.jsonl").resolve()), "sha256": _sha256(output_dir / f"hotpotqa_{name}.jsonl"), "bytes": (output_dir / f"hotpotqa_{name}.jsonl").stat().st_size, "count": len(rows), "ids": [row.task_id for row in rows]}
@@ -212,13 +227,14 @@ def prepare(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Freeze EC-3 HotpotQA V3 data without downloading it")
-    parser.add_argument("--aflow-fixture", required=True, help="Materialized official AFlow 1000-example HotpotQA fixture")
+    parser.add_argument("--aflow-validate-fixture", required=True, help="Materialized official AFlow 200-example HotpotQA validation fixture")
+    parser.add_argument("--aflow-test-fixture", required=True, help="Materialized official AFlow 800-example HotpotQA test fixture")
     parser.add_argument("--calibration-source", required=True, help="Disjoint HotpotQA train source for D_calib")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--data-seed", type=int, default=DATA_SEED)
     parser.add_argument("--aflow-commit", required=True)
     args = parser.parse_args()
-    print(json.dumps(prepare(fixture_path=Path(args.aflow_fixture), calibration_path=Path(args.calibration_source), output_dir=Path(args.output_dir), data_seed=args.data_seed, aflow_commit=args.aflow_commit), ensure_ascii=False, indent=2))
+    print(json.dumps(prepare(validate_fixture_path=Path(args.aflow_validate_fixture), test_fixture_path=Path(args.aflow_test_fixture), calibration_path=Path(args.calibration_source), output_dir=Path(args.output_dir), data_seed=args.data_seed, aflow_commit=args.aflow_commit), ensure_ascii=False, indent=2))
     return 0
 
 

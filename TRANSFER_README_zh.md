@@ -10,9 +10,9 @@
 
 ## 包含与排除
 
-包含源码、配置、测试、协议、文档、数据清单、外部基线源码，以及 `outputs/`、`reports/` 和 `results/` 中的实验产物。
+包含源码、配置、测试、协议、文档、数据清单，以及可公开再分发并已固化校验和的 EC-1 HumanEval/AFlow 和 EC-3 HotpotQA AFlow-derived fixtures。
 
-刻意排除：模型权重（本机 `models/` 约 19 GB）、Python 虚拟环境、缓存、Git 历史、编译缓存、临时测试目录，以及任何凭据或环境变量文件。MMLU 原始 CSV 和其他未授权再分发的数据也不在交付包中；请依照项目文档下载并校验。
+刻意排除：模型权重（本机 `models/` 约 19 GB）、Python 虚拟环境、缓存、Git 历史、编译缓存、临时测试目录，以及任何凭据、环境变量文件、运行日志、搜索 workspace、模型 checkpoint 和实验输出。MMLU 原始 CSV 及其他未明确授权再分发的数据不在仓库中；请依照项目文档下载并校验。
 
 ## 解包与环境
 
@@ -25,7 +25,7 @@ pip install -U pip
 pip install -e .
 ```
 
-根据执行路径，可能还需要安装 PyTorch、Transformers、vLLM 或外部基线的依赖。锁定依赖见 `uv.lock`；实验所需的模型权重不包含在此包中，须在目标机器设置模型路径和 OpenAI-compatible 推理服务。
+另一台机器的完整交接和固定外部基线源码准备方式见 `docs/TRANSFER_TO_ANOTHER_MACHINE.md`。实验所需的模型权重不包含在此包中，须在目标机器设置模型路径和 OpenAI-compatible 推理服务。
 
 ## 核验与复现入口
 

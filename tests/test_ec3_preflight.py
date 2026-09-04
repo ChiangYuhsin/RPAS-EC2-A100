@@ -17,12 +17,14 @@ def _write(path: Path, rows: list[dict]) -> None:
 
 
 def test_ec3_preflight_accepts_pinned_clean_fixture(monkeypatch, tmp_path: Path):
-    fixture = tmp_path / "fixture.jsonl"
+    validate = tmp_path / "validate.jsonl"
+    test = tmp_path / "test.jsonl"
     calibration = tmp_path / "calibration.jsonl"
-    _write(fixture, [_row(index) for index in range(1000)])
+    _write(validate, [_row(index) for index in range(200)])
+    _write(test, [_row(index) for index in range(200, 1000)])
     _write(calibration, [_row(index) for index in range(1000, 1040)])
     frozen = tmp_path / "frozen"
-    prepare(fixture_path=fixture, calibration_path=calibration, output_dir=frozen, data_seed=2026, aflow_commit=AFLOW_COMMIT)
+    prepare(validate_fixture_path=validate, test_fixture_path=test, calibration_path=calibration, output_dir=frozen, data_seed=2026, aflow_commit=AFLOW_COMMIT)
 
     class Result:
         def __init__(self, text: str): self.stdout = text
