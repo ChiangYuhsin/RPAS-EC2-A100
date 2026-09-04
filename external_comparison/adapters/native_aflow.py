@@ -42,7 +42,7 @@ def _run_driver(args, output: Path) -> dict:
         "--data-seed", str(args.data_seed), "--model", os.environ.get("RPAS_EXTERNAL_MODEL", "Qwen/Qwen3.5-9B"),
         "--base-url", os.environ.get("RPAS_EXTERNAL_API_BASE", "http://127.0.0.1:29500/v1"),
         "--api-key", os.environ.get("RPAS_EXTERNAL_API_KEY", "EMPTY"),
-        "--max-tokens", os.environ.get("RPAS_HUMANEVAL_MAX_TOKENS", "6144"),
+        "--max-tokens", os.environ.get("RPAS_HUMANEVAL_MAX_TOKENS", "1024"),
         "--aflow-max-rounds", os.environ.get("RPAS_AFLOW_MAX_ROUNDS", "3"),
         "--aflow-sample", os.environ.get("RPAS_AFLOW_SAMPLE", "4"),
         "--aflow-validation-rounds", os.environ.get("RPAS_AFLOW_VALIDATION_ROUNDS", "1"),

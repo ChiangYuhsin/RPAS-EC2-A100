@@ -127,6 +127,7 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
     data = stage_humaneval_data(workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
     write_aflow_config(workspace, args.model, args.base_url, args.api_key)
     telemetry = run_root / "_native_aflow_calls.jsonl"
+    telemetry.unlink(missing_ok=True)
     os.chdir(workspace)
     sys.path.insert(0, str(workspace))
     seed_everything(args.seed)
@@ -237,6 +238,7 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     data = stage_humaneval_data(workspace, "maas", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
     write_maas_config(workspace, args.model, args.base_url, args.api_key, args.seed)
     telemetry = run_root / "_native_maas_calls.jsonl"
+    telemetry.unlink(missing_ok=True)
     os.environ["METAGPT_PROJECT_ROOT"] = str(workspace)
     os.chdir(workspace)
     sys.path.insert(0, str(workspace))
@@ -325,7 +327,7 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--api-key", default="EMPTY")
-    parser.add_argument("--max-tokens", type=int, default=6144)
+    parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--aflow-max-rounds", type=int, default=3)
     parser.add_argument("--aflow-sample", type=int, default=4)
     parser.add_argument("--aflow-validation-rounds", type=int, default=1)

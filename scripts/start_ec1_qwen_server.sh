@@ -40,7 +40,7 @@ exec "$python_bin" scripts/serve_transformers_qwen35_openai.py \
   --served-model-name Qwen/Qwen3.5-9B \
   --host 127.0.0.1 \
   --port "$port" \
-  --max-new-tokens 6144 \
+  --max-new-tokens 1024 \
   --max-batch-size 4 \
   --batch-wait-ms 25 \
   --stop-string '<<RPAS_END>>'

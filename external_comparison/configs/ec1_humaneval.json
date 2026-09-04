@@ -10,7 +10,7 @@
   "shared_inference": {
     "backbone": "Qwen3.5-9B",
     "temperature": 0.0,
-    "max_tokens": 6144,
+    "max_tokens": 1024,
     "timeout_seconds": 10
   },
   "metrics": ["pass_at_1", "inference_calls", "inference_tokens", "search_calls", "search_tokens", "search_wall_clock"],

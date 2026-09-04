@@ -57,7 +57,7 @@ seed 0 pilot 使用显式的 GPU 4 或 GPU 5；`scripts/run_ec1_native.sh` 每�
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
 
-运行前需要有一个可达的 OpenAI-compatible inference endpoint。若 GPU 4 或 5 空闲，可用 `scripts/start_ec1_qwen_server.sh <4|5> <port>` 启动 EC-1 专用服务；该脚本强制 6144-token cap，并拒绝与已有 compute process 共享 GPU。设置不含密钥的参数后可启动 pilot：
+运行前需要有一个可达的 OpenAI-compatible inference endpoint。若 GPU 4 或 5 空闲，可用 `scripts/start_ec1_qwen_server.sh <4|5> <port>` 启动 EC-1 专用服务；该脚本强制 1024-token cap，并拒绝与已有 compute process 共享 GPU。该上限在 code-answer 和 workflow-edit pilot 中已足够，同时避免无终止生成独占服务。设置不含密钥的参数后可启动 pilot：
 
 ```bash
 export RPAS_EXTERNAL_MODEL='Qwen/Qwen3.5-9B'
