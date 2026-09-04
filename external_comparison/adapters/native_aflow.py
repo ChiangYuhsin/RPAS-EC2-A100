@@ -66,7 +66,7 @@ def _run_driver(args, output: Path) -> dict:
         "--base-url", _selected_endpoint(),
         "--api-key", os.environ.get("RPAS_EXTERNAL_API_KEY", "EMPTY"),
         "--max-tokens", os.environ.get("RPAS_HUMANEVAL_MAX_TOKENS", "1024"),
-        "--aflow-max-rounds", os.environ.get("RPAS_AFLOW_MAX_ROUNDS", "3"),
+        "--aflow-max-rounds", os.environ.get("RPAS_AFLOW_MAX_ROUNDS", "2"),
         "--aflow-sample", os.environ.get("RPAS_AFLOW_SAMPLE", "4"),
         "--aflow-validation-rounds", os.environ.get("RPAS_AFLOW_VALIDATION_ROUNDS", "1"),
     ]

@@ -465,7 +465,10 @@ def main() -> int:
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--api-key", default="EMPTY")
     parser.add_argument("--max-tokens", type=int, default=1024)
-    parser.add_argument("--aflow-max-rounds", type=int, default=3)
+    # Upstream AFlow always evaluates the initial round before entering this
+    # loop.  Therefore max_rounds=2 yields rounds 1-3; max_rounds=3 would
+    # create an unintended round 4 and is not a three-round budget.
+    parser.add_argument("--aflow-max-rounds", type=int, default=2)
     parser.add_argument("--aflow-sample", type=int, default=4)
     parser.add_argument("--aflow-validation-rounds", type=int, default=1)
     parser.add_argument("--maas-sample", type=int, default=4)
