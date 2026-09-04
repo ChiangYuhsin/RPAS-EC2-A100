@@ -95,9 +95,9 @@ seed、同一 split hash 与 formal gate 的结果仍不能称为论文正式结
 可从每个 seed artifact 生成主表：
 
 ```bash
-python -m external_comparison.runners.aggregate_mmlu \
-  --root outputs/external_comparison/ec2_gpu6 \
-  --output-dir outputs/external_comparison/ec2_gpu6/aggregate
+python -m external_comparison.runners.aggregate_mmlu_v2 \
+  --root outputs/external_comparison/ec2_mmlu_v2 \
+  --output-dir outputs/external_comparison/ec2_mmlu_v2/aggregate
 ```
 
 ## 实验主线

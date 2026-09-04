@@ -23,7 +23,7 @@ EMBEDDING_MODEL="${RPAS_MAAS_EMBEDDING_MODEL:?set RPAS_MAAS_EMBEDDING_MODEL to t
 OUTPUT_DIR="${RPAS_OUTPUT_DIR:-${REPO_ROOT}/outputs/external_comparison/ec2_fixed_v5_a100}"
 VLLM_PORT="${RPAS_VLLM_PORT:-29500}"
 VLLM_LOG="${RPAS_VLLM_LOG:-${REPO_ROOT}/logs/vllm-ec2-a100.log}"
-CONFIG_PATH="${RPAS_MODEL_CONFIG:-${REPO_ROOT}/experiments/phase2_wan_agent_config_qwen35_9b_gpu6.json}"
+CONFIG_PATH="${RPAS_MODEL_CONFIG:-${REPO_ROOT}/experiments/phase2_mmlu_qwen35_9b.json}"
 
 for required_dir in "${REPO_ROOT}" "${DATA_DIR}" "${MODEL_PATH}" "${GDESIGNER_ROOT}" "${EMBEDDING_MODEL}"; do
   if [ ! -d "${required_dir}" ]; then
