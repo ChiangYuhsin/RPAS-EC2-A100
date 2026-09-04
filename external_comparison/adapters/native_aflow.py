@@ -70,6 +70,14 @@ def _run_driver(args, output: Path) -> dict:
         "--aflow-sample", os.environ.get("RPAS_AFLOW_SAMPLE", "4"),
         "--aflow-validation-rounds", os.environ.get("RPAS_AFLOW_VALIDATION_ROUNDS", "1"),
     ]
+    if os.environ.get("RPAS_AFLOW_TEST_ONLY") == "1":
+        workspace = os.environ.get("RPAS_AFLOW_EXISTING_WORKSPACE", "").strip()
+        if not workspace:
+            raise RuntimeError(
+                "RPAS_AFLOW_TEST_ONLY=1 requires RPAS_AFLOW_EXISTING_WORKSPACE; "
+                "a held-out resume may only consume a completed isolated search workspace"
+            )
+        command.extend(["--aflow-test-only", "--aflow-existing-workspace", workspace])
     if os.environ.get("RPAS_EC1_REPLACE_WORKSPACE") == "1":
         command.append("--replace-workspace")
     subprocess.run(command, cwd=root, env=_gpu_env(), check=True)
