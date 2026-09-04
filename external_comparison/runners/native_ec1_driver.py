@@ -306,6 +306,7 @@ def _install_maas_public_test_compat(workspace: Path) -> str:
     Python interpreter with the common 10-second EC-1 public-test budget.
     """
     replacement = '''    def exec_code(self, solution, entry_point):
+        import os
         import subprocess
         import sys
         import tempfile
