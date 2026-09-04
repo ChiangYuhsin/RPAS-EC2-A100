@@ -231,6 +231,65 @@ def _install_maas_import_compat(workspace: Path) -> None:
     maas.tools = tools_module
 
 
+def _install_maas_optional_encoding_compat() -> None:
+    """Supply MaAS's optional encoding detector when its extra is absent.
+
+    The HumanEval code path reads the staged UTF-8 JSONL fixtures explicitly,
+    so it never exercises ``chardet.detect``.  MaAS imports the optional
+    package eagerly through its general document helpers, however.  Keep the
+    upstream importable without changing controller training, evaluation, or
+    LLM execution semantics.
+    """
+    try:
+        __import__("chardet")
+    except ModuleNotFoundError:
+        fallback = types.ModuleType("chardet")
+        fallback.detect = lambda _raw: {"encoding": "utf-8", "confidence": 0.0}
+        sys.modules["chardet"] = fallback
+    try:
+        __import__("gitignore_parser")
+    except ModuleNotFoundError:
+        fallback = types.ModuleType("gitignore_parser")
+        fallback.parse_gitignore = lambda *_args, **_kwargs: (lambda _path: False)
+        sys.modules["gitignore_parser"] = fallback
+
+
+def _install_maas_provider_compat(workspace: Path) -> str:
+    """Restrict the staged provider registry to EC-1's sole allowed backend.
+
+    The released registry eagerly imports every cloud-provider SDK.  EC-1
+    freezes one local OpenAI-compatible Qwen endpoint, so leaving those unused
+    imports in place makes reproducibility depend on unrelated credentials and
+    packages.  This changes package bootstrap only; ``OpenAILLM`` and all
+    HumanEval optimizer code remain upstream.
+    """
+    init_path = workspace / "maas" / "provider" / "__init__.py"
+    init_path.write_text(
+        "from maas.provider.openai_api import OpenAILLM\n\n__all__ = ['OpenAILLM']\n",
+        encoding="utf-8",
+    )
+    return "staged provider registry limited to OpenAILLM; unused cloud SDK imports excluded"
+
+
+def _install_maas_actions_compat(workspace: Path) -> str:
+    """Avoid unrelated notebook and project-management action imports.
+
+    HumanEval's official MaAS benchmark reaches ``ActionNode`` plus the base
+    action classes.  The upstream package initializer additionally imports
+    every notebook, browsing, and document action, each with independent SDK
+    extras.  Limit the staged package registry to the primitives actually
+    reached by this benchmark.
+    """
+    init_path = workspace / "maas" / "actions" / "__init__.py"
+    init_path.write_text(
+        "from maas.actions.action import Action\n"
+        "from maas.actions.action_output import ActionOutput\n\n"
+        "__all__ = ['Action', 'ActionOutput']\n",
+        encoding="utf-8",
+    )
+    return "staged actions registry limited to HumanEval action primitives"
+
+
 def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     workspace = stage_checkout(
         source, run_root, "maas", args.seed, replace=args.replace_workspace, require_clean_git=True
@@ -245,6 +304,9 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     seed_everything(args.seed)
 
     _install_maas_import_compat(workspace)
+    _install_maas_optional_encoding_compat()
+    provider_patch = _install_maas_provider_compat(workspace)
+    actions_patch = _install_maas_actions_compat(workspace)
     from maas.configs.models_config import ModelsConfig
     from maas.ext.maas.scripts.optimizer import Optimizer
     from maas.ext.maas.scripts.optimizer_utils.data_utils import DataUtils
@@ -308,7 +370,7 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     test_root = workspace / "maas" / "ext" / "maas" / "scripts" / "optimized" / "HumanEval" / "test" / "round_1"
     outputs = _csv_rows(test_root, test_rows)
     return {
-        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token"},
+        "manifest": {**source_manifest(source, workspace, "maas", args.seed, data), "implementation_status": "official_optimizer_fresh_train_checkpoint_then_test", "maas_sample": args.maas_sample, "maas_batch_size": args.maas_batch_size, "maas_lr": args.maas_lr, "search_wall_clock_seconds": search_wall_clock, "checkpoint": str(checkpoint), "checkpoint_bytes": checkpoint.stat().st_size, "staged_compatibility_patch": "DataUtils.create_result_data optional avg_cost,total_cost,token; " + provider_patch + "; " + actions_patch},
         "search_rows": [{"round": 1, "checkpoint": str(checkpoint)}],
         "test_rows": outputs,
         "telemetry_path": str(telemetry),
