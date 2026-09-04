@@ -15,14 +15,13 @@ import random
 from pathlib import Path
 from typing import Any
 
-from external_comparison.adapters.native_common import call_record, sha256_file
+from external_comparison.adapters.native_common import call_record, load_jsonl, sha256_file
 from external_comparison.runners.humaneval import (
     HumanEvalTask,
     _call_records,
     execute_humaneval,
     extract_code,
     load_humaneval_tasks,
-    split_humaneval,
     task_manifest,
 )
 from external_comparison.runners.public_test_executor import PublicTestExecutor
@@ -55,6 +54,43 @@ def _final_agent_name(candidate: dict[str, Any]) -> str:
     if topology == "dag_decompose":
         return "aggregator"
     return "solver"
+
+
+def _frozen_aflow_splits(
+    source: list[HumanEvalTask], *, validate_path: str | Path, test_path: str | Path
+) -> dict[str, list[HumanEvalTask]]:
+    """Load the exact EC-1 AFlow fixtures shared by every method.
+
+    EC-1 defines its 33/131 split through the AFlow fixture artifacts, not a
+    method-local shuffle.  Verify each fixture row against the official 164
+    task source before the search executor ever receives it.
+    """
+    paths = {"search": Path(validate_path), "test": Path(test_path)}
+    expected_counts = {"search": 33, "test": 131}
+    source_by_id = {task.task_id: task for task in source}
+    splits: dict[str, list[HumanEvalTask]] = {}
+    seen: set[str] = set()
+    for split, path in paths.items():
+        fixture = load_jsonl(path)
+        if len(fixture) != expected_counts[split]:
+            raise ValueError(f"EC-1 frozen {split} fixture must contain {expected_counts[split]} tasks")
+        tasks: list[HumanEvalTask] = []
+        for index, row in enumerate(fixture):
+            task_id = str(row.get("task_id", ""))
+            canonical = source_by_id.get(task_id)
+            if canonical is None:
+                raise ValueError(f"EC-1 frozen {split} fixture has unknown task at row {index}: {task_id!r}")
+            if any(row.get(field) != getattr(canonical, field) for field in ("prompt", "test", "entry_point")):
+                raise ValueError(f"EC-1 frozen {split} fixture differs from official HumanEval at {task_id}")
+            if task_id in seen:
+                raise ValueError(f"EC-1 frozen fixtures overlap at {task_id}")
+            seen.add(task_id)
+            tasks.append(canonical)
+        splits[split] = tasks
+    if len(seen) != 164:
+        raise ValueError("EC-1 frozen fixtures must partition all 164 official HumanEval tasks")
+    splits["select"] = []
+    return splits
 
 
 def _summary(tasks: list[dict[str, Any]]) -> dict[str, Any]:
@@ -210,7 +246,13 @@ def run(args: Any) -> dict[str, Any]:
     configure_site_penalties(sites, "center_a")
     profile = load_network_profiles(raw_config["network_profiles"])["lan_homogeneous"]
     source = load_humaneval_tasks(args.dataset_path)
-    splits = split_humaneval(source, data_seed=args.data_seed, search_size=33, select_size=0, test_size=131)
+    validate_fixture = getattr(args, "aflow_validate_path", None)
+    test_fixture = getattr(args, "aflow_test_path", None)
+    if not validate_fixture or not test_fixture:
+        raise RuntimeError("RPAS EC-1 requires the frozen AFlow validate and test fixtures")
+    splits = _frozen_aflow_splits(
+        source, validate_path=validate_fixture, test_path=test_fixture
+    )
     executor = PublicTestExecutor(args.public_test_path)
     seed_budget = int(os.environ.get("RPAS_EC1_RPAS_SEED_CANDIDATES", "4"))
     new_budget = int(os.environ.get("RPAS_EC1_RPAS_NEW_CANDIDATES", "3"))
@@ -309,6 +351,11 @@ def run(args: Any) -> dict[str, Any]:
             "public_test_fixture": str(Path(args.public_test_path).resolve()),
             "public_test_sha256": sha256_file(args.public_test_path),
             "split_manifest": task_manifest(splits),
+            "fixed_split": "aflow_validate_test_fixtures",
+            "search_fixture_source": str(Path(validate_fixture).resolve()),
+            "search_fixture_source_sha256": sha256_file(validate_fixture),
+            "test_fixture_source": str(Path(test_fixture).resolve()),
+            "test_fixture_source_sha256": sha256_file(test_fixture),
             "search_examples": len(splits["search"]),
             "test_examples": len(splits["test"]),
             "seed_candidates": seed_budget,

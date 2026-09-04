@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 
 from external_comparison.adapters.native_runtime import stage_checkout, stage_humaneval_data
+from external_comparison.runners.humaneval import load_humaneval_tasks
+from external_comparison.runners.native_rpas_ec1 import _frozen_aflow_splits
 from external_comparison.runners import native_humaneval
 
 
@@ -64,6 +66,26 @@ def test_aflow_fixture_content_must_match_official_humaneval(tmp_path: Path):
             workspace, "aflow", dataset, public, 2026,
             search_fixture=validate, test_fixture=test,
         )
+
+
+def test_rpas_uses_the_same_frozen_aflow_fixtures(tmp_path: Path):
+    rows = [
+        {"task_id": f"HumanEval/{index}", "prompt": f"p{index}", "test": "def check(x): pass", "entry_point": "f"}
+        for index in range(164)
+    ]
+    source = tmp_path / "humaneval.jsonl"
+    validate = tmp_path / "humaneval_validate.jsonl"
+    test = tmp_path / "humaneval_test.jsonl"
+    _write_jsonl(source, rows)
+    _write_jsonl(validate, rows[:33])
+    _write_jsonl(test, rows[33:])
+
+    splits = _frozen_aflow_splits(
+        load_humaneval_tasks(source), validate_path=validate, test_path=test
+    )
+
+    assert [task.task_id for task in splits["search"]] == [row["task_id"] for row in rows[:33]]
+    assert [task.task_id for task in splits["test"]] == [row["task_id"] for row in rows[33:]]
 
 
 @pytest.mark.parametrize(
