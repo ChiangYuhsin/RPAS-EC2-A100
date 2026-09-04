@@ -32,6 +32,10 @@
 
 This working tree also contains the RPAS multi-agent architecture-search research implementation. Collaborators should start with [RPAS_COLLABORATION.md](RPAS_COLLABORATION.md), then follow the frozen [experimental protocol](EXPERIMENT_PROTOCOL.md) and the [baseline adapter runbook](notes/COLLABORATOR_BASELINE_RUNBOOK_zh.md). External comparison adapters are under development and are not yet available as built-in runner modes.
 
+### Public Experiment Bundle
+
+The reproducible external-comparison code, frozen protocols, and checked-in MMLU-57x10 controlled-subset outputs are documented in [TRANSFER_README_zh.md](TRANSFER_README_zh.md). See the [GPU4/GPU5 MMLU main table](docs/MMLU_MAIN_TABLE_GPU45.md), [delivery report](docs/MMLU_MAIN_EXPERIMENT_DELIVERY_20260904.md), and [external repository pins](docs/EXTERNAL_REPOSITORIES.md). Model weights, raw benchmark data, credentials, logs, and third-party checkout directories are intentionally excluded.
+
 ---
 
 ## What is GEPA?
