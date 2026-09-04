@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+from pathlib import Path
 
 import pytest
 
@@ -81,3 +82,18 @@ def test_formal_baseline_parent_policies_are_executable(mode: str) -> None:
     assert selected["candidate_id"] in {"a", "b"}
     assert source in {"mcts_ucb", "meta_agent_quality_band"}
     assert utility_score(selected, mode) == selected["score"]
+
+
+def test_legacy_launch_and_homogeneous_config_stay_within_gpu45() -> None:
+    """Prevent non-EC launch paths from silently reopening retired GPU bindings."""
+    runner = Path("experiments/run_formal_aime_track_a.sh").read_text(encoding="utf-8")
+    assert 'GPU="${RPAS_CUDA_VISIBLE_DEVICES:-4}"' in runner
+    assert '"${GPU}" != "4" && "${GPU}" != "5"' in runner
+
+    config = json.loads(Path("experiments/phase2_wan_agent_config_qwen35_9b_homogeneous.json").read_text(encoding="utf-8"))
+    model_names = set(config["models"])
+    assert all("gpu6" not in name and "gpu7" not in name for name in model_names)
+    assert all(not value["api_base"].startswith("http://127.0.0.1:801") for value in config["models"].values())
+    defaults = config["defaults"]
+    assert set(defaults["dag_worker_models"]).issubset(model_names)
+    assert defaults["dag_aggregator_model"] in model_names
