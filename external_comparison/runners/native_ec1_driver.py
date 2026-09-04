@@ -13,6 +13,7 @@ import json
 import os
 import shutil
 import sys
+import threading
 import time
 import types
 from enum import Enum
@@ -74,8 +75,55 @@ def _csv_rows(root: Path, test_rows: list[dict[str, Any]]) -> list[dict[str, Any
     return values
 
 
+def _install_aflow_runtime_compatibility() -> str:
+    """Apply bounded execution-only fixes to the staged AFlow checkout.
+
+    AFlow's public HumanEval entry point explicitly passes its historical
+    concurrency of 50 to the benchmark.  EC-1 uses one shared backend with a
+    four-request bound, so the adapter clamps that value without changing the
+    optimizer, candidate-generation, or evaluator logic.  The daemon worker
+    preserves AFlow's 15-second evaluator timeout while allowing a timed-out
+    generated program to stop holding the process open.
+    """
+    from benchmarks.benchmark import BaseBenchmark
+    from benchmarks.humaneval import HumanEvalBenchmark
+
+    original_evaluate_all = BaseBenchmark.evaluate_all_problems
+
+    async def bounded_evaluate_all(self, data, agent, max_concurrent_tasks=50):
+        return await original_evaluate_all(self, data, agent, min(int(max_concurrent_tasks), 4))
+
+    def daemon_timeout(self, func, call_args, timeout):
+        result = []
+        stop_event = threading.Event()
+
+        def target():
+            try:
+                result.append(func(*call_args))
+            except Exception as exc:  # Preserve upstream exception semantics.
+                result.append(exc)
+            finally:
+                stop_event.set()
+
+        worker = threading.Thread(target=target, daemon=True)
+        worker.start()
+        if not stop_event.wait(timeout):
+            raise self.TimeoutError("Function execution timed out")
+        if not result:
+            return None
+        if isinstance(result[0], Exception):
+            raise result[0]
+        return result[0]
+
+    BaseBenchmark.evaluate_all_problems = bounded_evaluate_all
+    HumanEvalBenchmark.run_with_timeout = daemon_timeout
+    return "aflow_runtime: max_concurrent_tasks<=4; HumanEval timeout worker daemonized"
+
+
 def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
-    workspace = stage_checkout(source, run_root, "aflow", args.seed, replace=args.replace_workspace)
+    workspace = stage_checkout(
+        source, run_root, "aflow", args.seed, replace=args.replace_workspace, require_clean_git=True
+    )
     data = stage_humaneval_data(workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
     write_aflow_config(workspace, args.model, args.base_url, args.api_key)
     telemetry = run_root / "_native_aflow_calls.jsonl"
@@ -85,6 +133,8 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
 
     from scripts.async_llm import AsyncLLM, LLMConfig
     from scripts.optimizer import Optimizer
+
+    compatibility_patch = _install_aflow_runtime_compatibility()
 
     original_call = AsyncLLM.__call__
 
@@ -148,7 +198,7 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
     test_rows = [json.loads(line) for line in Path(data["test_path"]).read_text(encoding="utf-8").splitlines() if line.strip()]
     outputs = _csv_rows(test_root / "round_1", test_rows)
     return {
-        "manifest": {**source_manifest(source, workspace, "aflow", args.seed, data), "implementation_status": "official_optimizer_graph_then_selected_workflow_test", "aflow_max_rounds": args.aflow_max_rounds, "aflow_sample": args.aflow_sample, "aflow_validation_rounds": args.aflow_validation_rounds, "selected_round": selected_round, "selected_validation_score": selected.get("score"), "search_wall_clock_seconds": search_wall_clock},
+        "manifest": {**source_manifest(source, workspace, "aflow", args.seed, data), "implementation_status": "official_optimizer_graph_then_selected_workflow_test", "aflow_max_rounds": args.aflow_max_rounds, "aflow_sample": args.aflow_sample, "aflow_validation_rounds": args.aflow_validation_rounds, "selected_round": selected_round, "selected_validation_score": selected.get("score"), "search_wall_clock_seconds": search_wall_clock, "staged_compatibility_patch": compatibility_patch},
         "search_rows": search_rows,
         "test_rows": outputs,
         "telemetry_path": str(telemetry),
@@ -181,7 +231,9 @@ def _install_maas_import_compat(workspace: Path) -> None:
 
 
 def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
-    workspace = stage_checkout(source, run_root, "maas", args.seed, replace=args.replace_workspace)
+    workspace = stage_checkout(
+        source, run_root, "maas", args.seed, replace=args.replace_workspace, require_clean_git=True
+    )
     data = stage_humaneval_data(workspace, "maas", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
     write_maas_config(workspace, args.model, args.base_url, args.api_key, args.seed)
     telemetry = run_root / "_native_maas_calls.jsonl"

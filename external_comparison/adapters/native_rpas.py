@@ -142,6 +142,11 @@ def _run_fixed_mmlu(args) -> None:
 
 
 def run_humaneval(args) -> None:
+    if getattr(args, "run_kind", "pilot") == "formal":
+        raise RuntimeError(
+            "EC-1 formal RPAS is blocked: the native phase-2 code-agent path has not yet "
+            "been given the same AFlow-derived public-test tool access as AFlow and MaAS."
+        )
     from external_comparison.runners.humaneval import run_experiment
 
     repo_root = Path(args.repo_root).resolve()

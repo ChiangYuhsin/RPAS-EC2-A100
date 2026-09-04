@@ -11,6 +11,7 @@ import json
 import os
 import random
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -46,9 +47,47 @@ def seed_everything(seed: int) -> None:
         pass
 
 
-def stage_checkout(source: Path, output_dir: Path, method: str, seed: int, *, replace: bool = False) -> Path:
+def stage_checkout(
+    source: Path,
+    output_dir: Path,
+    method: str,
+    seed: int,
+    *,
+    replace: bool = False,
+    require_clean_git: bool = False,
+) -> Path:
     if not source.is_dir():
         raise FileNotFoundError(f"official {method} checkout not found: {source}")
+    if require_clean_git:
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=source,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if dirty.returncode != 0:
+            raise RuntimeError(f"official {method} source is not a readable Git checkout: {source}")
+        if dirty.stdout.strip():
+            raise RuntimeError(
+                f"official {method} source has uncommitted changes; refusing to stage an unpinned baseline: {source}"
+            )
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            cwd=source,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        non_cache_untracked = [
+            item for item in untracked.stdout.splitlines()
+            if "__pycache__/" not in item and not item.endswith(".pyc")
+        ]
+        if non_cache_untracked:
+            raise RuntimeError(
+                f"official {method} source has untracked non-cache files; refusing to stage an unpinned baseline: "
+                f"{non_cache_untracked[:5]}"
+            )
     workspace = output_dir / "_workspaces" / f"{method}_seed_{seed}"
     if workspace.exists():
         if not replace:
@@ -152,6 +191,7 @@ def source_manifest(source: Path, workspace: Path, method: str, seed: int, data:
         "seed": seed,
         "official_source": str(source),
         "official_commit": git_commit(source),
+        "official_source_clean": True,
         "isolated_workspace": str(workspace),
         "data": data,
         "workspace_reused": False,

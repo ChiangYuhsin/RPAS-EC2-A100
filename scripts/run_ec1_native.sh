@@ -20,7 +20,12 @@ fi
 
 export RPAS_EC1_GPU="$gpu"
 export CUDA_VISIBLE_DEVICES="$gpu"
-command=(uv run python -m external_comparison.runners.native_humaneval \
+python_bin="${RPAS_EC1_PYTHON:-}"
+if [[ -z "$python_bin" && -x ".rpas-run/bin/python" ]]; then
+  python_bin=".rpas-run/bin/python"
+fi
+python_bin="${python_bin:-python}"
+command=("$python_bin" -m external_comparison.runners.native_humaneval \
   --repo-root . \
   --method "$method" --seed "${RPAS_EC1_SEED:-0}" --dataset-path "$dataset" \
   --public-test-path "$public_test" --output-dir "$output" --run-kind "$run_kind")

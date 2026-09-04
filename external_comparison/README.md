@@ -41,7 +41,7 @@ uv run python scripts/fetch_ec1_humaneval_data.py --output-dir data/ec1_humaneva
 `aflow/humaneval_test.jsonl` 和 `aflow/humaneval_public_test.jsonl` 的路径传给
 preflight；脚本会记录每个实际文件的 SHA-256。
 
-门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。原生 adapter 会为每个 seed 复制一个独立官方 checkout：AFlow 必须现场调用 `Optimizer.optimize("Graph")` 并以验证集选择 workflow；MaAS 必须现场 train、验证新的 controller checkpoint 后调用官方 test。既有 `round_1` 或随机 controller 都会被拒绝。
+门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。原生 adapter 会为每个 seed 复制一个独立、干净且 commit-pinned 的官方 checkout：AFlow 必须现场调用 `Optimizer.optimize("Graph")` 并以验证集选择 workflow；MaAS 必须现场 train、验证新的 controller checkpoint 后调用官方 test。既有 `round_1` 或随机 controller 都会被拒绝。AFlow 的执行并发会在 adapter 层限制为服务端的 4 请求上限，且不改变上游搜索或评分逻辑。
 
 先用无模型调用的 staging smoke 检查官方源码和四文件路径：
 
@@ -69,7 +69,7 @@ bash scripts/run_ec1_native.sh aflow 4 \
   outputs/ec1_native pilot
 ```
 
-`RPAS_EXTERNAL_API_KEY` 只应在运行环境中设置，不能写入配置、日志或 Git。pilot 成功后，依据 search cost 冻结预算，再以 `formal` 运行 seed 0/1/2；三种方法都使用同一个 data seed、endpoint、解码参数和 public-test tool access。
+`RPAS_EXTERNAL_API_KEY` 只应在运行环境中设置，不能写入配置、日志或 Git。pilot 成功后，依据 search cost 冻结预算，再以 `formal` 运行 seed 0/1/2。AFlow 和 MaAS 已使用同源 public-test fixture；在 RPAS 的 native code-agent path 获得相同的可调用工具前，adapter 会拒绝将 RPAS 标记为 formal，防止不公平比较进入主表。
 
 ## 当前 EC-2 结果边界
 

@@ -30,7 +30,12 @@ if timeout 1 bash -c "</dev/tcp/127.0.0.1/$port" >/dev/null 2>&1; then
 fi
 
 export CUDA_VISIBLE_DEVICES="$gpu"
-exec uv run python scripts/serve_transformers_qwen35_openai.py \
+python_bin="${RPAS_EC1_PYTHON:-}"
+if [[ -z "$python_bin" && -x ".rpas-run/bin/python" ]]; then
+  python_bin=".rpas-run/bin/python"
+fi
+python_bin="${python_bin:-python}"
+exec "$python_bin" scripts/serve_transformers_qwen35_openai.py \
   --model models/Qwen3.5-9B \
   --served-model-name Qwen/Qwen3.5-9B \
   --host 127.0.0.1 \
