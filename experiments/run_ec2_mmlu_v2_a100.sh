@@ -26,7 +26,12 @@ GDESIGNER_ROOT="${RPAS_GDESIGNER_ROOT:?set RPAS_GDESIGNER_ROOT to the pinned G-D
 EMBEDDING_MODEL="${RPAS_GDESIGNER_EMBEDDING_MODEL:-${RPAS_MAAS_EMBEDDING_MODEL:-}}"
 [[ -n "${EMBEDDING_MODEL}" ]] || { echo "set RPAS_GDESIGNER_EMBEDDING_MODEL to local all-MiniLM-L6-v2 files" >&2; exit 2; }
 OUTPUT_DIR="${RPAS_OUTPUT_DIR:-${REPO_ROOT}/outputs/external_comparison/ec2_mmlu_v2}"
-SERVICE_PORT="${RPAS_SERVICE_PORT:-29500}"
+if [[ "${CUDA_VISIBLE_DEVICES}" == "4" ]]; then
+  DEFAULT_SERVICE_PORT=29500
+else
+  DEFAULT_SERVICE_PORT=29501
+fi
+SERVICE_PORT="${RPAS_SERVICE_PORT:-${DEFAULT_SERVICE_PORT}}"
 SERVICE_LOG="${RPAS_SERVICE_LOG:-${REPO_ROOT}/logs/transformers-ec2-v2-gpu${CUDA_VISIBLE_DEVICES}.log}"
 CONFIG_PATH="${RPAS_MODEL_CONFIG:-${REPO_ROOT}/experiments/phase2_mmlu_qwen35_9b.json}"
 METHODS=( ${RPAS_EC2_V2_METHODS:-single_agent full_connected chain gdesigner rpas_comm} )
@@ -63,18 +68,25 @@ export GEPA_PHASE2_PROMPT_MODE=deliberate
   --config-dir external_comparison/configs
 
 mkdir -p "${OUTPUT_DIR}" "$(dirname "${SERVICE_LOG}")"
-# vLLM cannot execute Qwen3_5ForConditionalGeneration in this environment.
-# This service uses the official Transformers implementation and binds exactly
-# the selected physical GPU through CUDA_VISIBLE_DEVICES.
-CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${PYTHON_BIN}" \
-  scripts/serve_transformers_qwen35_openai.py --model "${MODEL_PATH}" \
-  --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${SERVICE_PORT}" \
-  --max-new-tokens 256 --max-batch-size 4 --batch-wait-ms 25 --stop-string '<<RPAS_END>>' \
-  >"${SERVICE_LOG}" 2>&1 &
-SERVICE_PID=$!
+SERVICE_PID=""
+if curl -sf "http://127.0.0.1:${SERVICE_PORT}/health" >/dev/null; then
+  echo "Reusing resident EC-2 backend on GPU ${CUDA_VISIBLE_DEVICES}, port ${SERVICE_PORT}."
+else
+  # vLLM cannot execute Qwen3_5ForConditionalGeneration in this environment.
+  # This service uses the official Transformers implementation and binds exactly
+  # the selected physical GPU through CUDA_VISIBLE_DEVICES.
+  CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${PYTHON_BIN}" \
+    scripts/serve_transformers_qwen35_openai.py --model "${MODEL_PATH}" \
+    --served-model-name "Qwen/Qwen3.5-9B" --host 127.0.0.1 --port "${SERVICE_PORT}" \
+    --max-new-tokens 256 --max-batch-size 4 --batch-wait-ms 25 --stop-string '<<RPAS_END>>' \
+    >"${SERVICE_LOG}" 2>&1 &
+  SERVICE_PID=$!
+fi
 
 cleanup() {
-  kill "${SERVICE_PID}" 2>/dev/null || true
+  if [[ -n "${SERVICE_PID}" ]]; then
+    kill "${SERVICE_PID}" 2>/dev/null || true
+  fi
 }
 trap cleanup EXIT
 
@@ -82,7 +94,7 @@ for _ in $(seq 1 180); do
   if curl -sf "http://127.0.0.1:${SERVICE_PORT}/health" >/dev/null; then
     break
   fi
-  if ! kill -0 "${SERVICE_PID}" 2>/dev/null; then
+  if [[ -n "${SERVICE_PID}" ]] && ! kill -0 "${SERVICE_PID}" 2>/dev/null; then
     tail -n 120 "${SERVICE_LOG}" >&2 || true
     exit 1
   fi
