@@ -2,7 +2,12 @@
 
 This public repository is sufficient to reconstruct the reviewed experiment
 infrastructure and its publicly redistributable fixed fixtures. It is not a
-model checkpoint or a bundle of completed experiment outputs.
+foundation-model checkpoint or a bundle of completed experiment outputs. The
+only retained learned state is the small MaAS seed-0 controller used solely to
+resume its interrupted pilot held-out test.
+
+For the full execution order, recovery procedure, formal gates, and failure
+handling, read [the continuation runbook](CONTINUATION_RUNBOOK_zh.md).
 
 ## Included
 
