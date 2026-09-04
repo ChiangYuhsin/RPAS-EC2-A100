@@ -21,6 +21,10 @@ def _run_driver(args, output: Path) -> dict:
     public = getattr(args, "public_test_path", None) or os.environ.get("RPAS_EC1_PUBLIC_TEST_PATH", "")
     if not public:
         raise RuntimeError("EC-1 requires --public-test-path or RPAS_EC1_PUBLIC_TEST_PATH")
+    search_fixture = getattr(args, "aflow_validate_path", None)
+    test_fixture = getattr(args, "aflow_test_path", None)
+    if not search_fixture or not test_fixture:
+        raise RuntimeError("EC-1 requires frozen AFlow validate and test fixtures")
     if getattr(args, "run_kind", "pilot") == "formal" and "RPAS_MAAS_SAMPLE" not in os.environ:
         raise RuntimeError("formal MaAS requires an explicitly frozen RPAS_MAAS_SAMPLE after the seed-0 pilot")
     root = Path(__file__).resolve().parents[2]
@@ -28,6 +32,7 @@ def _run_driver(args, output: Path) -> dict:
         sys.executable, "-m", "external_comparison.runners.native_ec1_driver",
         "--method", "maas", "--source-root", str(_root()), "--dataset-path", str(args.dataset_path),
         "--public-test-path", str(public), "--output-dir", str(output), "--seed", str(args.seed),
+        "--search-fixture", str(search_fixture), "--test-fixture", str(test_fixture),
         "--data-seed", str(args.data_seed), "--model", os.environ.get("RPAS_EXTERNAL_MODEL", "Qwen/Qwen3.5-9B"),
         "--base-url", _selected_endpoint(),
         "--api-key", os.environ.get("RPAS_EXTERNAL_API_KEY", "EMPTY"),

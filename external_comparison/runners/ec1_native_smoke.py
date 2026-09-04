@@ -15,9 +15,22 @@ from external_comparison.adapters.native_runtime import (
 )
 
 
-def run_smoke(method: str, source_root: Path, dataset_path: Path, public_test_path: Path, output_dir: Path, seed: int, data_seed: int = 2026) -> dict:
+def run_smoke(
+    method: str,
+    source_root: Path,
+    dataset_path: Path,
+    public_test_path: Path,
+    validate_path: Path,
+    test_path: Path,
+    output_dir: Path,
+    seed: int,
+    data_seed: int = 2026,
+) -> dict:
     workspace = stage_checkout(source_root, output_dir, method, seed)
-    data = stage_humaneval_data(workspace, method, dataset_path, public_test_path, data_seed)
+    data = stage_humaneval_data(
+        workspace, method, dataset_path, public_test_path, data_seed,
+        search_fixture=validate_path, test_fixture=test_path,
+    )
     if method == "aflow":
         write_aflow_config(workspace, "smoke-model", "http://127.0.0.1:1/v1", "EMPTY")
         required = workspace / "workspace" / "HumanEval" / "workflows" / "round_1" / "graph.py"
@@ -35,11 +48,16 @@ def main() -> int:
     parser.add_argument("--source-root", required=True)
     parser.add_argument("--dataset-path", required=True)
     parser.add_argument("--public-test-path", required=True)
+    parser.add_argument("--aflow-validate-path", default="data/ec1_humaneval/aflow/humaneval_validate.jsonl")
+    parser.add_argument("--aflow-test-path", default="data/ec1_humaneval/aflow/humaneval_test.jsonl")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--data-seed", type=int, default=2026)
     args = parser.parse_args()
-    result = run_smoke(args.method, Path(args.source_root), Path(args.dataset_path), Path(args.public_test_path), Path(args.output_dir), args.seed, args.data_seed)
+    result = run_smoke(
+        args.method, Path(args.source_root), Path(args.dataset_path), Path(args.public_test_path),
+        Path(args.aflow_validate_path), Path(args.aflow_test_path), Path(args.output_dir), args.seed, args.data_seed,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

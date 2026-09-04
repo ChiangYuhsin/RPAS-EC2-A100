@@ -28,7 +28,9 @@ EC-1 启动前必须先运行无模型调用的门禁：
 ```bash
 CUDA_VISIBLE_DEVICES=4 uv run python -m external_comparison.runners.ec1_preflight \
   --dataset-path /path/to/humaneval.jsonl \
-  --public-test-path /path/to/humaneval_public_test.jsonl
+  --public-test-path /path/to/humaneval_public_test.jsonl \
+  --aflow-validate-path /path/to/humaneval_validate.jsonl \
+  --aflow-test-path /path/to/humaneval_test.jsonl
 ```
 
 推荐先在本地准备四文件 provenance bundle（数据不会被 Git 跟踪）：
@@ -41,7 +43,7 @@ uv run python scripts/fetch_ec1_humaneval_data.py --output-dir data/ec1_humaneva
 `aflow/humaneval_test.jsonl` 和 `aflow/humaneval_public_test.jsonl` 的路径传给
 preflight；脚本会记录每个实际文件的 SHA-256。
 
-门禁要求 164 个 HumanEval 任务、固定 `33` 个 search/dev 与 `131` 个 held-out test，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。原生 adapter 会为每个 seed 复制一个独立、干净且 commit-pinned 的官方 checkout：AFlow 必须现场调用 `Optimizer.optimize("Graph")` 并以验证集选择 workflow；MaAS 必须现场 train、验证新的 controller checkpoint 后调用官方 test。既有 `round_1` 或随机 controller 都会被拒绝。AFlow 的执行并发会在 adapter 层限制为服务端的 4 请求上限，且不改变上游搜索或评分逻辑。
+门禁要求 164 个 HumanEval 任务、固定 AFlow `33` 个 search/dev 与 `131` 个 held-out test fixture，且 `CUDA_VISIBLE_DEVICES` 只能包含 GPU 4/5。所有原生方法都会实际消费同一对 fixture；stage 前会检查 task ID 互斥、数量，以及 `prompt/test/entry_point` 与官方 HumanEval 逐字段一致。原生 adapter 会为每个 seed 复制一个独立、干净且 commit-pinned 的官方 checkout：AFlow 必须现场调用 `Optimizer.optimize("Graph")` 并以验证集选择 workflow；MaAS 必须现场 train、验证新的 controller checkpoint 后调用官方 test。既有 `round_1` 或随机 controller 都会被拒绝。AFlow 的 task-level 执行并发固定为 1，避免共享后端排队把上游不变的 60 秒 workflow timeout 误记为算法失败。
 
 先用无模型调用的 staging smoke 检查官方源码和四文件路径：
 
@@ -50,10 +52,12 @@ python -m external_comparison.runners.ec1_native_smoke \
   --method aflow --source-root external_baselines/AFlow \
   --dataset-path data/ec1_humaneval/official/humaneval.jsonl \
   --public-test-path data/ec1_humaneval/aflow/humaneval_public_test.jsonl \
+  --aflow-validate-path data/ec1_humaneval/aflow/humaneval_validate.jsonl \
+  --aflow-test-path data/ec1_humaneval/aflow/humaneval_test.jsonl \
   --output-dir outputs/ec1_smoke --seed 0
 ```
 
-seed 0 pilot 使用显式的 GPU 4 或 GPU 5；`scripts/run_ec1_native.sh` 每次只允许一张卡。正式三 seed 运行要求同时提供 AFlow validate/test provenance 文件，并显式冻结 `RPAS_AFLOW_MAX_ROUNDS` 与 `RPAS_MAAS_SAMPLE`，避免基于 test 结果调整搜索预算。
+seed 0 pilot 使用显式的 GPU 4 或 GPU 5；`scripts/run_ec1_native.sh` 每次只允许一张卡，并默认传入仓库固定的 AFlow validate/test fixture。正式三 seed 运行要求显式冻结 `RPAS_AFLOW_MAX_ROUNDS` 与 `RPAS_MAAS_SAMPLE`，避免基于 test 结果调整搜索预算。
 它们只接受 repository-local native adapter；`validate_protocol.py --require-native`
 会在缺失时失败。
 

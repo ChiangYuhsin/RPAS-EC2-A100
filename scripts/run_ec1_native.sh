@@ -29,9 +29,11 @@ command=("$python_bin" -m external_comparison.runners.native_humaneval \
   --repo-root . \
   --method "$method" --seed "${RPAS_EC1_SEED:-0}" --dataset-path "$dataset" \
   --public-test-path "$public_test" --output-dir "$output" --run-kind "$run_kind")
+validate_fixture="${RPAS_EC1_AFLOW_VALIDATE_PATH:-data/ec1_humaneval/aflow/humaneval_validate.jsonl}"
+test_fixture="${RPAS_EC1_AFLOW_TEST_PATH:-data/ec1_humaneval/aflow/humaneval_test.jsonl}"
+command+=(--aflow-validate-path "$validate_fixture" --aflow-test-path "$test_fixture")
 if [[ "$run_kind" == "formal" ]]; then
-  : "${RPAS_EC1_AFLOW_VALIDATE_PATH:?formal runs require RPAS_EC1_AFLOW_VALIDATE_PATH}"
-  : "${RPAS_EC1_AFLOW_TEST_PATH:?formal runs require RPAS_EC1_AFLOW_TEST_PATH}"
-  command+=(--aflow-validate-path "$RPAS_EC1_AFLOW_VALIDATE_PATH" --aflow-test-path "$RPAS_EC1_AFLOW_TEST_PATH")
+  : "$validate_fixture"
+  : "$test_fixture"
 fi
 "${command[@]}"

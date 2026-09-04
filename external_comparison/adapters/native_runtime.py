@@ -17,7 +17,6 @@ from typing import Any
 
 from external_comparison.adapters.native_common import (
     git_commit,
-    humaneval_external_split,
     load_jsonl,
     sha256_file,
 )
@@ -101,24 +100,45 @@ def stage_checkout(
     return workspace
 
 
-def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-
-
 def stage_humaneval_data(
     workspace: Path,
     method: str,
     dataset_path: Path,
     public_test_path: Path,
     data_seed: int,
+    *,
+    search_fixture: Path,
+    test_fixture: Path,
 ) -> dict[str, Any]:
-    """Materialize the frozen 33/131 split at the upstream paths it expects."""
-    split = humaneval_external_split(load_jsonl(dataset_path), data_seed)
+    """Materialize the frozen AFlow 33/131 split at upstream input paths.
+
+    ``humaneval_validate.jsonl`` and ``humaneval_test.jsonl`` are part of the
+    frozen EC-1 provenance bundle.  They must be consumed, rather than merely
+    checked by the outer CLI while a new split is silently sampled from the
+    164-task upstream file.  The official file remains the canonical source
+    for schema/content verification.
+    """
+    official_rows = load_jsonl(dataset_path)
+    official_by_id = {str(row.get("task_id", "")): row for row in official_rows}
+    if len(official_rows) != 164 or len(official_by_id) != 164:
+        raise ValueError("EC-1 official HumanEval source must contain 164 unique task IDs")
+    if not search_fixture.is_file() or not test_fixture.is_file():
+        raise FileNotFoundError("EC-1 requires materialized frozen AFlow validate and test fixtures")
+    split = {"search": load_jsonl(search_fixture), "test": load_jsonl(test_fixture)}
     if len(split["search"]) != 33 or len(split["test"]) != 131:
-        raise AssertionError("EC-1 requires exactly 33 search and 131 test tasks")
+        raise AssertionError("EC-1 requires frozen AFlow fixtures with exactly 33 search and 131 test tasks")
+    search_ids = [str(row.get("task_id", "")) for row in split["search"]]
+    test_ids = [str(row.get("task_id", "")) for row in split["test"]]
+    if len(set(search_ids)) != 33 or len(set(test_ids)) != 131 or set(search_ids) & set(test_ids):
+        raise ValueError("EC-1 frozen AFlow fixtures must have unique, disjoint task IDs")
+    for label, rows in split.items():
+        for index, row in enumerate(rows):
+            task_id = str(row.get("task_id", ""))
+            canonical = official_by_id.get(task_id)
+            if canonical is None:
+                raise ValueError(f"EC-1 {label} fixture has unknown task ID at row {index}: {task_id!r}")
+            if any(row.get(field) != canonical.get(field) for field in ("prompt", "test", "entry_point")):
+                raise ValueError(f"EC-1 {label} fixture differs from official HumanEval for {task_id}")
     if method == "aflow":
         root = workspace / "data" / "datasets"
         search_path = root / "humaneval_validate.jsonl"
@@ -129,19 +149,29 @@ def stage_humaneval_data(
         test_path = root / "humaneval_test.jsonl"
     else:
         raise ValueError(f"unsupported native method: {method}")
-    write_jsonl(search_path, split["search"])
-    write_jsonl(test_path, split["test"])
+    # Copy the approved fixture bytes after semantic validation.  This keeps
+    # the staged SHA-256 equal to the provenance manifest rather than creating
+    # a second serialization of the same JSON objects.
+    search_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(search_fixture, search_path)
+    shutil.copyfile(test_fixture, test_path)
     public_target = root / "humaneval_public_test.jsonl"
     shutil.copyfile(public_test_path, public_target)
     return {
         "dataset_source_sha256": sha256_file(dataset_path),
         "public_test_source_sha256": sha256_file(public_test_path),
+        "fixed_split": "aflow_validate_test_fixtures",
+        "data_seed": data_seed,
+        "search_fixture_source": str(search_fixture),
+        "search_fixture_source_sha256": sha256_file(search_fixture),
         "search_path": str(search_path),
         "search_sha256": sha256_file(search_path),
-        "search_tasks": [str(row.get("task_id", "")) for row in split["search"]],
+        "search_tasks": search_ids,
+        "test_fixture_source": str(test_fixture),
+        "test_fixture_source_sha256": sha256_file(test_fixture),
         "test_path": str(test_path),
         "test_sha256": sha256_file(test_path),
-        "test_tasks": [str(row.get("task_id", "")) for row in split["test"]],
+        "test_tasks": test_ids,
         "public_test_path": str(public_target),
         "public_test_sha256": sha256_file(public_target),
     }

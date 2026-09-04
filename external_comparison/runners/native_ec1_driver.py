@@ -127,7 +127,10 @@ def _aflow(args, source: Path, run_root: Path) -> dict[str, Any]:
     workspace = stage_checkout(
         source, run_root, "aflow", args.seed, replace=args.replace_workspace, require_clean_git=True
     )
-    data = stage_humaneval_data(workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
+    data = stage_humaneval_data(
+        workspace, "aflow", Path(args.dataset_path), Path(args.public_test_path), args.data_seed,
+        search_fixture=Path(args.search_fixture), test_fixture=Path(args.test_fixture),
+    )
     write_aflow_config(workspace, args.model, args.base_url, args.api_key)
     telemetry = run_root / "_native_aflow_calls.jsonl"
     telemetry.unlink(missing_ok=True)
@@ -360,7 +363,10 @@ def _maas(args, source: Path, run_root: Path) -> dict[str, Any]:
     workspace = stage_checkout(
         source, run_root, "maas", args.seed, replace=args.replace_workspace, require_clean_git=True
     )
-    data = stage_humaneval_data(workspace, "maas", Path(args.dataset_path), Path(args.public_test_path), args.data_seed)
+    data = stage_humaneval_data(
+        workspace, "maas", Path(args.dataset_path), Path(args.public_test_path), args.data_seed,
+        search_fixture=Path(args.search_fixture), test_fixture=Path(args.test_fixture),
+    )
     write_maas_config(workspace, args.model, args.base_url, args.api_key, args.seed)
     telemetry = run_root / "_native_maas_calls.jsonl"
     telemetry.unlink(missing_ok=True)
@@ -450,6 +456,8 @@ def main() -> int:
     parser.add_argument("--source-root", required=True)
     parser.add_argument("--dataset-path", required=True)
     parser.add_argument("--public-test-path", required=True)
+    parser.add_argument("--search-fixture", required=True)
+    parser.add_argument("--test-fixture", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--data-seed", type=int, default=2026)

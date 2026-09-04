@@ -25,15 +25,15 @@ def main() -> int:
     parser.add_argument("--data-seed", type=int, default=2026)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--public-test-path", help="AFlow-derived public-test fixture shared by all EC-1 methods")
-    parser.add_argument("--aflow-validate-path", help="Frozen AFlow validation fixture, required for formal runs")
-    parser.add_argument("--aflow-test-path", help="Frozen AFlow test fixture, required for formal runs")
+    parser.add_argument("--aflow-validate-path", default="data/ec1_humaneval/aflow/humaneval_validate.jsonl", help="Frozen AFlow validation fixture shared by all EC-1 methods")
+    parser.add_argument("--aflow-test-path", default="data/ec1_humaneval/aflow/humaneval_test.jsonl", help="Frozen AFlow held-out fixture shared by all EC-1 methods")
     parser.add_argument("--run-kind", choices=("pilot", "formal"), default="pilot")
     args = parser.parse_args()
     if args.run_kind == "formal":
         if os.environ.get("RPAS_EC1_GPU", "") not in {"4", "5"}:
             parser.error("formal EC-1 requires RPAS_EC1_GPU=4 or RPAS_EC1_GPU=5")
-        if not args.public_test_path or not args.aflow_validate_path or not args.aflow_test_path:
-            parser.error("formal EC-1 requires --public-test-path, --aflow-validate-path, and --aflow-test-path")
+        if not args.public_test_path:
+            parser.error("formal EC-1 requires --public-test-path")
         run_preflight(
             Path(args.dataset_path), Path(args.public_test_path),
             Path("external_comparison/configs/ec1_humaneval.json"),
