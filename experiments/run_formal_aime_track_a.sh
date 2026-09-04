@@ -3,9 +3,9 @@
 
 set -euo pipefail
 
-GPU="${RPAS_CUDA_VISIBLE_DEVICES:-6}"
-if [[ "${GPU}" != "6" && "${GPU}" != "7" ]]; then
-  echo "RPAS_CUDA_VISIBLE_DEVICES must be 6 or 7; got ${GPU}" >&2
+GPU="${RPAS_CUDA_VISIBLE_DEVICES:-4}"
+if [[ "${GPU}" != "4" && "${GPU}" != "5" ]]; then
+  echo "RPAS_CUDA_VISIBLE_DEVICES must be 4 or 5; got ${GPU}" >&2
   exit 2
 fi
 

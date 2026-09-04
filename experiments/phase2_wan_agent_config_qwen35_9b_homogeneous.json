@@ -36,18 +36,18 @@
         "max_tokens": 6144
       }
     },
-    "qwen35_9b_gpu6": {
+    "qwen35_9b_gpu4_reuse": {
       "litellm_model": "openai/Qwen/Qwen3.5-9B",
-      "api_base": "http://127.0.0.1:8010/v1",
+      "api_base": "http://127.0.0.1:8008/v1",
       "api_key_value": "EMPTY",
       "completion_kwargs": {
         "temperature": 0.0,
         "max_tokens": 6144
       }
     },
-    "qwen35_9b_gpu7": {
+    "qwen35_9b_gpu5_reuse": {
       "litellm_model": "openai/Qwen/Qwen3.5-9B",
-      "api_base": "http://127.0.0.1:8011/v1",
+      "api_base": "http://127.0.0.1:8009/v1",
       "api_key_value": "EMPTY",
       "completion_kwargs": {
         "temperature": 0.0,
@@ -148,9 +148,9 @@
     "dag_worker_models": [
       "qwen35_9b_gpu4",
       "qwen35_9b_gpu5",
-      "qwen35_9b_gpu6"
+      "qwen35_9b_gpu4_reuse"
     ],
-    "dag_aggregator_model": "qwen35_9b_gpu7",
+    "dag_aggregator_model": "qwen35_9b_gpu5_reuse",
     "agent_max_tokens": {
       "planner": 512,
       "solver": 6144,
