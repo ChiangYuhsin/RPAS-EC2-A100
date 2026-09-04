@@ -29,9 +29,14 @@ def main() -> int:
     parser.add_argument("--aflow-test-path", default="data/ec1_humaneval/aflow/humaneval_test.jsonl", help="Frozen AFlow held-out fixture shared by all EC-1 methods")
     parser.add_argument("--run-kind", choices=("pilot", "formal"), default="pilot")
     args = parser.parse_args()
+    selected_gpu = os.environ.get("RPAS_EC1_GPU", "").strip()
+    visible_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
+    if selected_gpu not in {"4", "5"} or visible_gpu != selected_gpu:
+        parser.error(
+            "EC-1 requires one matching physical GPU: "
+            "RPAS_EC1_GPU=CUDA_VISIBLE_DEVICES=4 or 5"
+        )
     if args.run_kind == "formal":
-        if os.environ.get("RPAS_EC1_GPU", "") not in {"4", "5"}:
-            parser.error("formal EC-1 requires RPAS_EC1_GPU=4 or RPAS_EC1_GPU=5")
         if not args.public_test_path:
             parser.error("formal EC-1 requires --public-test-path")
         run_preflight(

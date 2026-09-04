@@ -1,9 +1,11 @@
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
 from external_comparison.adapters.native_runtime import stage_checkout, stage_humaneval_data
+from external_comparison.runners import native_humaneval
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -62,3 +64,28 @@ def test_aflow_fixture_content_must_match_official_humaneval(tmp_path: Path):
             workspace, "aflow", dataset, public, 2026,
             search_fixture=validate, test_fixture=test,
         )
+
+
+@pytest.mark.parametrize(
+    ("selected_gpu", "visible_gpu"),
+    [("", "4"), ("4", ""), ("4", "5"), ("6", "6")],
+)
+def test_ec1_dispatch_rejects_missing_or_mismatched_gpu_binding(
+    monkeypatch: pytest.MonkeyPatch, selected_gpu: str, visible_gpu: str
+):
+    monkeypatch.setenv("RPAS_EC1_GPU", selected_gpu)
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", visible_gpu)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "native_humaneval",
+            "--repo-root", ".",
+            "--dataset-path", "ignored.jsonl",
+            "--method", "aflow",
+            "--seed", "0",
+            "--output-dir", "ignored",
+        ],
+    )
+    with pytest.raises(SystemExit, match="2"):
+        native_humaneval.main()
